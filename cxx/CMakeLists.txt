@@ -21,4 +21,4 @@ else ()
   set (OPENAL_LIB openal)
 endif ()
 
-TARGET_LINK_LIBRARIES(audio ${Boost_LIBRARIES} ${OPENAL_LIB} vorbis vorbisfile ogg SDL)
+TARGET_LINK_LIBRARIES(audio ${Boost_LIBRARIES} ${OPENAL_LIB} vorbis vorbisfile ogg SDL python2.7)
