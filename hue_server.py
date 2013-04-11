@@ -4,9 +4,9 @@ from time import clock;
 # Set up an OpenAL context and stuff
 audio.initialize()
 
-audio.play_sound("sample_audio/calm1.ogg");
+audio.play_sound("click.ogg");
 
-while clock() < 30:
+while clock() < 3:
   audio.update()
 
 # TODO implement the server part...
