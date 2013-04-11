@@ -50,7 +50,7 @@ protected:
   std::vector<ALuint> mSources;
   std::map<ALuint, bool> mSourceAvailability;
   std::map<String, ALuint> mAudioBuffers;
-  std::map<String, byte*> mAudioPCM;
+  std::map<String, SoundData> mAudioData;
   std::map<String, AudioLoader*> mAudioLoaders; 
 
   // Built-in loaders

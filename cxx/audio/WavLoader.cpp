@@ -2,8 +2,13 @@
 #include "WavLoader.h"
 #include "WavStream.h"
 
-#include <AL/alc.h>
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
 #include <AL/al.h>
+#include <AL/alc.h>
+#endif
 
 void getChunkId(std::ifstream* stream, char* out)
 {
@@ -27,7 +32,7 @@ uint16_t getChunkUInt16(std::ifstream* stream)
 }
 //---------------------------------------------------------------------------
 
-void WavLoader::loadSound(String filename, ALuint& out, byte** buf)
+void WavLoader::loadSound(String filename, ALuint& out, SoundData* sd)
 {
   int sampleRate;
   int format;
@@ -37,11 +42,15 @@ void WavLoader::loadSound(String filename, ALuint& out, byte** buf)
 
   char* data = 0;
   // read in the entire contents of the data chunk
-  if (!buf) {
+  if (!sd) {
     data = new char[dataSize];
   } else {
-    *buf = new byte[dataSize];
-    data = reinterpret_cast<char*>(*buf);
+    sd->pcm = new byte[dataSize];
+    sd->size = dataSize;
+    sd->stereo = format == AL_FORMAT_STEREO16 || format == AL_FORMAT_STEREO8;
+    sd->bits = (AL_FORMAT_MONO8 || format == AL_FORMAT_STEREO8) ? 8 : 16;
+    sd->interleaved = true; // at least i sure hope so...
+    data = reinterpret_cast<char*>(sd->pcm);
   }
   //char* data = new char[dataSize];
   file->read(data, dataSize);
@@ -52,7 +61,7 @@ void WavLoader::loadSound(String filename, ALuint& out, byte** buf)
 
   // cleanup
   delete file;
-  delete[] data;
+  if (!sd) delete[] data;
   file->close();
 }
 //---------------------------------------------------------------------------

@@ -1,6 +1,11 @@
 #include "Sound.h"
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
 #include <AL/al.h>
 #include <AL/alc.h>
+#endif
 
 Sound::Sound(ALuint source)
   :mSource(source)
@@ -288,9 +293,9 @@ Real Sound::getSampleOffset()
 }
 //---------------------------------------------------------------------------
 
-Real Sound::getByteOffset()
+int Sound::getByteOffset()
 {
-  return getFloat(AL_BYTE_OFFSET);
+  return getInt(AL_BYTE_OFFSET);
 }
 //---------------------------------------------------------------------------
 
@@ -306,9 +311,9 @@ void Sound::setOffsetSamples(Real offset)
 }
 //---------------------------------------------------------------------------
 
-void Sound::setOffsetBytes(Real offset)
+void Sound::setOffsetBytes(int offset)
 {
-  setFloat(offset, AL_BYTE_OFFSET);
+  setInt(offset, AL_BYTE_OFFSET);
 }
 //---------------------------------------------------------------------------
 

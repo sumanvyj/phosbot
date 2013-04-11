@@ -19,6 +19,7 @@ typedef unsigned char byte;
 
 #include "SharedPtr.h"
 #include "Exception.h"
+#include "SoundData.h"
 
 #ifdef WIN32
 

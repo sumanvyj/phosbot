@@ -15,7 +15,7 @@ public:
   AudioLoader(){};
   virtual ~AudioLoader(){};
 
-  virtual void loadSound(String filename, ALuint& out, byte** buf = 0) = 0;
+  virtual void loadSound(String filename, ALuint& out, SoundData* data = 0) = 0;
   virtual AudioStream* streamSound(String filename) = 0;
 };
 
