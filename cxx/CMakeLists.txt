@@ -11,5 +11,6 @@ add_library(audio SHARED
   audio/WavStream.cpp
   audio/Vector3.cpp
 )
+include_directories("/usr/local/include")
 set_target_properties(audio PROPERTIES PREFIX "")
 TARGET_LINK_LIBRARIES(audio ${Boost_LIBRARIES} openal vorbis vorbisfile ogg SDL)
