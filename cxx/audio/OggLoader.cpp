@@ -1,12 +1,17 @@
 #include "OggLoader.h"
 #include "OggStream.h"
 
-#include <AL/alc.h>
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
 #include <AL/al.h>
+#include <AL/alc.h>
+#endif
 
 #include <vorbis/vorbisfile.h>
 
-void OggLoader::loadSound(String filename, ALuint& out, byte** buf)
+void OggLoader::loadSound(String filename, ALuint& out, SoundData* sd)
 {
   // do basic opening stuff
   OggVorbis_File* oggFile = loadOgg(filename);
@@ -23,11 +28,15 @@ void OggLoader::loadSound(String filename, ALuint& out, byte** buf)
   char* data;
 
   // allocate buffer
-  if (!buf) {
+  if (!sd) {
     data = new char[size];
   } else {
-    *buf = new byte[size];
-    data = reinterpret_cast<char*>(*buf);
+    sd->pcm = new byte[size];
+    sd->size = size;
+    sd->bits = 16;
+    sd->stereo = info->channels == 2;
+    sd->interleaved = info->channels == 2;
+    data = reinterpret_cast<char*>(sd->pcm);
   }
 
   int pos = 0;
@@ -51,7 +60,7 @@ void OggLoader::loadSound(String filename, ALuint& out, byte** buf)
   alBufferData(out, format, static_cast<void*>(data), size, info->rate);
   
   // cleanup
-  if (!buf) {
+  if (!sd) {
     delete[] data;
   }
   ov_clear(oggFile);

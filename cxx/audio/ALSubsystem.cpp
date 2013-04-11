@@ -1,8 +1,13 @@
 #include "ALdllmain.h"
 #include "ALSubsystem.h"
 
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
 #include <AL/al.h>
 #include <AL/alc.h>
+#endif
 
 ALSubsystem::ALSubsystem() {}
 //-----------------------------------------------------------------------
@@ -164,7 +169,7 @@ SoundPtr ALSubsystem::play2D(String name, bool startPaused)
   }
   else
   {
-    out.bind(new BufferedSound(getSource(), mAudioBuffers[name], mAudioPCM[name]));
+    out.bind(new BufferedSound(getSource(), mAudioBuffers[name], mAudioData[name]));
     mActiveSounds.push_back(out);
     if(!startPaused)
       out->play();
@@ -218,9 +223,9 @@ void ALSubsystem::loadSound(String filename, String name)
     try
     {
       ALuint buff;
-      byte* raw_pcm;
-      mAudioLoaders[ext]->loadSound(filename, buff, &raw_pcm);
-      mAudioPCM[name] = raw_pcm;
+      SoundData sd;
+      mAudioLoaders[ext]->loadSound(filename, buff, &sd);
+      mAudioData[name] = sd;
       mAudioBuffers[name] = buff;
       std::cout<<"Done\n";
     }

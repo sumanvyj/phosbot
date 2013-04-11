@@ -88,10 +88,10 @@ public:
   /** Playback position */
   Real getSecondOffset();
   Real getSampleOffset();
-  Real getByteOffset();
+  int getByteOffset();
   void setOffsetSeconds(Real offset);
   void setOffsetSamples(Real offset);
-  void setOffsetBytes(Real offset);
+  void setOffsetBytes(int offset);
 
 protected:
 

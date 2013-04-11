@@ -8,16 +8,16 @@ class BufferedSound : public Sound
 {
 public:
 
-  BufferedSound(ALuint source, ALuint buffer, byte* pcm);
+  BufferedSound(ALuint source, ALuint buffer, const SoundData& data);
   virtual ~BufferedSound();
   virtual void update();
   
-  byte* getPCM();
+  SoundData* getSoundData();
 
 protected:
 
   ALuint mBuffer;
-  byte* mPCM;
+  SoundData mData;
 
 };
 

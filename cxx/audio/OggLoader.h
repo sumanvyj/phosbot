@@ -15,7 +15,7 @@ public:
   OggLoader(){}
   virtual ~OggLoader(){}
 
-  virtual void loadSound(String filename, ALuint& out, byte** buf = 0);
+  virtual void loadSound(String filename, ALuint& out, SoundData* sd = 0);
   virtual AudioStream* streamSound(String filename);
 
   static size_t ov_read_func(void *ptr, size_t size, size_t nmemb, void *datasource);

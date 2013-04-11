@@ -13,4 +13,4 @@ add_library(audio SHARED
 )
 include_directories("/usr/local/include")
 set_target_properties(audio PROPERTIES PREFIX "")
-TARGET_LINK_LIBRARIES(audio ${Boost_LIBRARIES} openal vorbis vorbisfile ogg)
+TARGET_LINK_LIBRARIES(audio ${Boost_LIBRARIES} openal vorbis vorbisfile ogg SDL)

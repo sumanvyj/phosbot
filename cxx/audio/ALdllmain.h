@@ -20,6 +20,7 @@ typedef unsigned uint;
 
 #include "SharedPtr.h"
 #include "Exception.h"
+#include "SoundData.h"
 
 #ifdef WIN32
 
