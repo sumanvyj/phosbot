@@ -11,6 +11,7 @@ add_library(audio SHARED
   audio/WavStream.cpp
   audio/Vector3.cpp
 )
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/lib)
 include_directories("/usr/local/include")
 set_target_properties(audio PROPERTIES PREFIX "")
-TARGET_LINK_LIBRARIES(audio ${Boost_LIBRARIES} openal vorbis vorbisfile ogg SDL)
+TARGET_LINK_LIBRARIES(audio ${Boost_LIBRARIES} ${OpenAL_LIBRARIES} vorbis vorbisfile ogg SDL)
