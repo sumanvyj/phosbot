@@ -2,23 +2,15 @@
 #include "audio/ALSubsystem.h"
 #include "SDL/SDL.h"
 
-void line(int x0, int y0, int x1, int y1, unsigned value, unsigned* buf, int stride);
 
 ALSubsystem* audio;
 SoundPtr s;
 SoundData* d;
+
+#ifndef __APPLE__
 SDL_Surface* surface;
 int pos = 0;
 int prevx = 0, prevy = 0;
-
-void initialize() {
-  audio = new ALSubsystem();
-  audio->_init();
-  if (SDL_Init(SDL_INIT_VIDEO)<0)
-    exit(1);
-  surface = SDL_SetVideoMode(800,500,32,SDL_HWSURFACE|SDL_DOUBLEBUF);
-}
-
 // hacky bresenham
 void line(int x0, int y0, int x1, int y1, unsigned value, unsigned* buf, int stride) {
   int dx = abs(x1 - x0);
@@ -43,9 +35,21 @@ void line(int x0, int y0, int x1, int y1, unsigned value, unsigned* buf, int str
     }
   }
 }
+#endif
+
+void initialize() {
+  audio = new ALSubsystem();
+  audio->_init();
+#ifndef __APPLE__
+  if (SDL_Init(SDL_INIT_VIDEO)<0)
+    exit(1);
+  surface = SDL_SetVideoMode(800,500,32,SDL_HWSURFACE|SDL_DOUBLEBUF);
+#endif
+}
 
 void update() {
   audio->_update(0.f);
+#ifndef __APPLE__
   int l = (reinterpret_cast<short*>(d->pcm))[s->getByteOffset()];
   l /= 10;
   l = std::max(-200, std::min(200, l));
@@ -69,11 +73,14 @@ void update() {
     prevy = 0;
   }
   usleep(10000);
+#endif
 }
 
 void deinitialize() {
   delete audio;
+#ifndef __APPLE__
   SDL_Quit();
+#endif
 }
 
 void play_sound(const char* file) {
@@ -83,10 +90,6 @@ void play_sound(const char* file) {
   if (dynamic_cast<BufferedSound*>(sound)) {
     BufferedSound* bs = dynamic_cast<BufferedSound*>(sound);
     d = bs->getSoundData();
-    //unsigned short* raw = reinterpret_cast<unsigned short*>(bs->getPCM());
-    //for (int i = 0; i < 100; ++i) {
-    //  printf("%d\n", raw[i]);
-    //}
   }
 }
 
