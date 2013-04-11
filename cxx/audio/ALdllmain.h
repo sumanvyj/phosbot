@@ -16,6 +16,7 @@
 typedef float Real;
 typedef std::string String;
 typedef unsigned char byte;
+typedef unsigned uint;
 
 #include "SharedPtr.h"
 #include "Exception.h"
@@ -26,7 +27,7 @@ typedef unsigned char byte;
 
 	#include <windows.h>
 
-	#ifdef ALSubsystem_EXPORTS 
+	#ifdef ALSubsystem_EXPORTS
 		#define ORYX_AL_EXPORT __declspec(dllexport)
 	#else
 		#define ORYX_AL_EXPORT __declspec(dllimport)
