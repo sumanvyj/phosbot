@@ -2,6 +2,10 @@
 *.pyc
 phosbot
 
+*.so
+*.dylib
+*.a
+
 # vim
 *.un~
 
