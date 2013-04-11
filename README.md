@@ -4,15 +4,15 @@ This will be a snazzy server thingy that controls hue lights and stuff.
 
 Using Homebrew, first make sure all these packages are installed:
 
-    brew install python boost libogg libvorbis sdl cmake
+    brew install boost libogg libvorbis sdl cmake
 
-Make sure the path is set up correctly in your `~/.bashrc`:
+Install `pip`:
 
-    PATH=${PATH}:/usr/local/share/python
+    sudo easy_install pip
 
 Install `virtualenv`:
 
-    pip install virtualenv
+    sudo pip install virtualenv
 
 Make a virtualenv called `phosbot`:
 
