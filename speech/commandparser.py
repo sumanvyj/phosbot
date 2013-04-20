@@ -288,10 +288,11 @@ def process_command(cmd, names=list()):
         return state
 
     cmd, state = parse_names(cmd, state, names)
-    cmd, state = parse_power(cmd, state)
-    cmd, state = parse_setlight(cmd, state)
-    cmd, state = parse_changelight(cmd, state)
-    cmd, state = parse_fadetime(cmd, state)
-    cmd, state = parse_color(cmd, state)
-    cmd, state = parse_eastereggs(cmd, state)
+
+    for parse_func in (
+        parse_power, parse_setlight, parse_changelight, parse_fadetime,
+        parse_color, parse_eastereggs
+    ):
+        cmd, state = parse_func(cmd, state)
+
     return state

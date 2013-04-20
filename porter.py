@@ -3,6 +3,9 @@ from time import clock
 from phue import *
 import config
 import time
+import os
+
+SONGS_PATH = 'SONGS_PATH'
 
 def main(queue=None):
     bridge = Bridge(config.BRIDGE_IP)
@@ -11,6 +14,11 @@ def main(queue=None):
 
     # Set up an OpenAL context and stuff
     audio.initialize(num_lights)
+
+    songs = os.environ[SONGS_PATH] if SONGS_PATH in os.environ else './songs'
+    files = os.listdir(songs)
+    for f in files:
+        audio.add_file(f)
 
     while True:
       if queue is not None and not queue.empty():
