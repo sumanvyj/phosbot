@@ -120,7 +120,7 @@ def parse_names(cmd, state, names):
     names = tuple(set(cmd) & set(names))
 
     if len(names) != 0:
-        cmd = [w for w in cmd if w in names]
+        cmd = [w for w in cmd if w not in names]
         state.names = names
 
     return (cmd, state)
@@ -134,6 +134,7 @@ def parse_color(cmd, state):
         except ValueError:
             continue
     return (cmd, state)
+
 
 def parse_eastereggs(cmd, state):
     return (cmd, state)
