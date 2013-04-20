@@ -21,3 +21,9 @@ cxx/cmake_install.cmake
 
 # sensitive information
 config.py
+
+# binary storage
+songs/
+
+# OS X
+*.DS_Store
