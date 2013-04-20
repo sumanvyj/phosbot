@@ -28,6 +28,9 @@ FadeTime = _enum(FADE='fade', IN='in', OUT='out',
 # song volume
 Volume = _enum(LOUD='loud', SOFT='soft', HIGH='high', LOW='low')
 
+# extra modifiers
+Extra = _enum(REALLY='really', VERY='very')
+
 
 class StateChange(object):
     '''
@@ -77,7 +80,7 @@ class StateChange(object):
         return self.__str__()
 
     def __str__(self):
-        return '%s(power=%r, setlight=%r, changelight=%r, fadetime=%r, target=%r, color=%r, song=%r, volume=%r)' % (
+        return '%s(power=%r, setlight=%r, changelight=%r, fadetime=%r, names=%r, color=%r, song=%r, volume=%r)' % (
             self.__class__.__name__,
             self.power, self.setlight, self.changelight, self.fadetime,
             self.names, self.color, self.song, self.volume
@@ -97,7 +100,7 @@ def _match(cmd, key):
     return False
 
 def _hasextra(cmd):
-    return 'really' in cmd or 'very' in cmd
+    return Extra.REALLY in cmd or Extra.VERY in cmd
 
 def parse_power(cmd, state):
     val = None
@@ -158,9 +161,6 @@ def parse_fadetime(cmd, state):
 
         # default fade time of 1 second
         val = 10
-        if _match(cmd, FadeTime.FAST) or _match(cmd, FadeTime.QUICKLY):
-            # instantly, or in one 10th of a second
-            val = 0 if extra else 1
         if _match(cmd, FadeTime.SLOW) or _match(cmd, FadeTime.SLOWLY):
             val = 50
             val *= 2 if extra else 1
@@ -179,6 +179,11 @@ def parse_fadetime(cmd, state):
     except ValueError:
         pass
 
+    # catch the case of simply 'turn quickly to red'
+    if _match(cmd, FadeTime.FAST) or _match(cmd, FadeTime.QUICKLY):
+        # instantly, or in one 10th of a second
+        val = 0 if extra else 1
+
     state.fadetime = val
     return (cmd, state)
 
@@ -195,6 +200,7 @@ def parse_names(cmd, state, names):
 
     return (cmd, state)
 
+
 def parse_color(cmd, state):
     for word in cmd:
         try:
@@ -205,12 +211,19 @@ def parse_color(cmd, state):
             continue
     return (cmd, state)
 
+
 def parse_song(cmd, state):
     return (cmd, state)
 
 
 
 def parse_eastereggs(cmd, state):
+    if _match(cmd, 'let there be light'):
+        state.power = True
+    if _match(cmd, 'sleep'):
+        state.power = False
+    if _match(cmd, 'go to hell'):
+        state.color = webcolors.name_to_rgb('red')
     return (cmd, state)
 
 
