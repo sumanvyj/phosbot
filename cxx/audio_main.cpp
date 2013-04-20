@@ -3,24 +3,18 @@
 #include "SDL/SDL.h"
 //#include <rfftw.h>
 #include "AudioManager.h"
-#include <sys/time.h>
-#include <unistd.h>
 
 #ifndef __APPLE__
   #define DEBUG_VIZ
 #endif
 
 AudioManager* audio;
-struct timeval last_req;
-
-
 
 void initialize(int num_lights) {
   if (!audio) {
     audio = new AudioManager(num_lights);
   }
   audio->init();
-  gettimeofday(&last_req, 0);
 }
 
 void update() {
@@ -37,11 +31,11 @@ void play_sound(const char* file) {
 }
 
 void play_sound_random() {
-  audio->pauseSound();
+  audio->playSound();
 }
 
 void pause_sound() {
-  audio->playSound();
+  audio->pauseSound();
 }
 
 void unpause_sound() {

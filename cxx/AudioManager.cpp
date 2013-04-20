@@ -16,6 +16,7 @@ AudioManager::AudioManager(int num_lights)
   prevx = 0;
   prevy = 0;
 #endif
+  m_nowPlaying.setNull();
 }
 
 AudioManager::~AudioManager() {
@@ -52,47 +53,59 @@ void AudioManager::deinit() {
 
 void AudioManager::update() {
   m_audio->_update(0.f);
-  m_lightifier.sample(m_nowPlaying->getByteOffset());
 
-#ifdef DEBUG_VIZ
+  //printf("%f\n", m_nowPlaying->getSecondOffset());
+  if (!m_nowPlaying.isNull()) {
+    int ster = m_data->stereo ? 2 : 1;
+    uint32_t offset = 44100 * (1.3f + m_nowPlaying->getSecondOffset() / 430.f) * ster; // 1.3 seconds!
+
+    m_lightifier.sample(m_nowPlaying->getByteOffset() + offset);
+
+  #ifdef DEBUG_VIZ
 
 
-  if (isPlaying()) {
-    unsigned* p = reinterpret_cast<unsigned*>(m_surface->pixels);
+    if (isPlaying()) {
+      unsigned* p = reinterpret_cast<unsigned*>(m_surface->pixels);
 
-    int l = (reinterpret_cast<short*>(m_data->pcm))
-      [m_nowPlaying->getByteOffset()/2];
-    l = std::max(-100, std::min(100, l / 10));
-    //*(p + (l + 350) * 800 + pos) = 0xffff00ff;
-    prevx = pos;
-    prevy = l;
-    ++pos;
-    SDL_Flip(m_surface);
-    if (pos == 800) {
-      memset(p + 800*250, 0x2f, 800*250*4);
-      pos = 0;
-      prevx = 0;
-      prevy = 0;
+      int l = (reinterpret_cast<short*>(m_data->pcm))
+        [m_nowPlaying->getByteOffset()/2];
+      l = std::max(-100, std::min(100, l / 10));
+      //*(p + (l + 350) * 800 + pos) = 0xffff00ff;
+      prevx = pos;
+      prevy = l;
+      ++pos;
+      SDL_Flip(m_surface);
+      if (pos == 800) {
+        memset(p + 800*250, 0x2f, 800*250*4);
+        pos = 0;
+        prevx = 0;
+        prevy = 0;
+      }
+
+      //for (int i = 0; i < m_numLights; ++i) {
+        //square(50 + i * 150, 325, 100, 100, m_lightifier.getLight(i)->color, p, 800);
+      //}
+
+      memset(p, 0, 800*250*4);
+      float* bins = m_lightifier.getBins();
+
+      for (int i = 0; i < AudioLightifier::WINDOW_SIZE/2 && i < 800; ++i) {
+        line(i, 0, i, static_cast<int>(std::max(std::min(bins[i] * 10, 200.f), 0.f)),
+          0xff0000ff, p, 800);
+      }
+
+      SDL_Flip(m_surface);
     }
-
-    //for (int i = 0; i < m_numLights; ++i) {
-      //square(50 + i * 150, 325, 100, 100, m_lightifier.getLight(i)->color, p, 800);
-    //}
-
-    memset(p, 0, 800*250*4);
-    float* bins = m_lightifier.getBins();
-
-    for (int i = 0; i < AudioLightifier::WINDOW_SIZE/2 && i < 800; ++i) {
-      line(i, 0, i, static_cast<int>(std::max(std::min(bins[i] * 10, 200.f), 0.f)),
-        0xff0000ff, p, 800);
-    }
-
-    SDL_Flip(m_surface);
+  #endif
   }
-#endif
 }
 
 void AudioManager::playSound(const char* filename) {
+  if (isPlaying()) {
+    m_nowPlaying->stop();
+    m_nowPlaying.setNull();
+  }
+
   if (!filename) {
     if (m_audioFiles.empty()) {
       printf("NOOOOOO... audio files\n");

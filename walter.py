@@ -53,8 +53,14 @@ class Walter(object):
 
         command = {}
 
-        if state.song is not None:
-            song = state.song.lower()
+        if state.songcommand is not None:
+            if queue is not None:
+                queue.put({
+                    'type' : state.songcommand,
+                    'file' : state.songname
+                })
+            # TODO fix this!
+            '''song = state.songname.lower()
             songs = os.environ[SONGS_PATH] if SONGS_PATH in os.environ else './songs'
             files = os.listdir(songs)
 
@@ -64,13 +70,7 @@ class Walter(object):
                 fuzzy_files[fn] = f
 
             if song in fuzzy_files:
-                song = fuzzy_files[song]
-                if queue is not None:
-                    queue.put({
-                        'type' : 'play',
-                        'file' : song
-                    })
-
+                song = fuzzy_files[song]'''
             return
 
         if state.power is not None:
@@ -103,7 +103,6 @@ class Walter(object):
                 light.brightness += delta
 
         return state
-
 
 def main(phrase=None, queue=None):
     if phrase is not None:

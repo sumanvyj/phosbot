@@ -2,6 +2,7 @@ from cxx import audio
 from time import clock
 from phue import *
 import config
+import time
 
 def main(queue=None):
     bridge = Bridge(config.BRIDGE_IP)
@@ -11,10 +12,19 @@ def main(queue=None):
     # Set up an OpenAL context and stuff
     audio.initialize(num_lights)
 
-    audio.play_sound("cutandrun.ogg");
-
     while True:
-      # TODO process stuff from the queue!
+      if queue is not None and not queue.empty():
+          command = queue.get()
+          if command['type'] == 'play':
+              if command['file'] is None:
+                audio.play_random_sound()
+              else:
+                audio.play_sound(command['file'].encode('ascii'))
+          elif command['type'] == 'pause':
+              audio.pause_sound()
+          elif command['type'] == 'unpause':
+              audio.unpause_sound()
+
       audio.update()
 
       # If we have audio playing currently, then loop through and ask

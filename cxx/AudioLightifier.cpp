@@ -32,10 +32,6 @@ void AudioLightifier::sample(uint32_t offset) {
   // starting from some offset, run an FFT on WINDOW_SIZE
   // samples (at 1024 on 44.1kHz, this'll be ~20ms of audio)
 
-  // ofset by some amount to cope with lag
-  //  TODO make this tweakable at runtime!
-  offset += (0.01f * 44100) * 2;
-
   short* pcm = reinterpret_cast<short*>(m_data->pcm);
   m_sampleIntensity = 0.f;
 
@@ -56,15 +52,22 @@ void AudioLightifier::sample(uint32_t offset) {
 
   m_binAvg = 0.f;
   m_binStdDev = 0.f;
+  m_bassIntensity = 0.f;
+  int bassSamples = 0;
 
   // sample decibel magnitude into bins
   for (int i = 0; i < WINDOW_SIZE / 2; ++i) {
     m_bins[i] = log10(result->r * result->r + result->i * result->i);
+    if (i * (44100.f / WINDOW_SIZE) > 32.f && i * (44100.f / WINDOW_SIZE) > 512.f) {
+      m_bassIntensity += m_bins[i];
+      ++bassSamples;
+    }
     m_binAvg += m_bins[i];
     m_binStdDev += m_bins[i] * m_bins[i];
     ++result;
   }
 
+  m_bassIntensity /= static_cast<float>(bassSamples);
   m_binAvg /= static_cast<float>(WINDOW_SIZE / 2);
   m_binStdDev = sqrt(m_binStdDev / (WINDOW_SIZE / 2) - (m_binAvg * m_binAvg));
 
@@ -75,20 +78,20 @@ float* AudioLightifier::getBins() {
   return m_bins;
 }
 
+#define CLAMP(X, MIN, MAX) std::min(MAX, std::max(MIN, X))
+
 void AudioLightifier::computeLights() {
-  // TODO come up with random numbers out of FFT bins to plug into color
-  fColor c(0.f, 0.f,0.f);
-  float intensity = log(m_sampleIntensity) / 20.f + 0.5f;
-  // totally arbitrary atm
-  c.g = (m_binAvg - 5.f) / 45.f + 0.6f;
-  c.b = (m_binStdDev - 0.6f) / 2.f + 0.85f;
-  c.g *= intensity;
-  c.b *= intensity;
-  m_lights[0].hue = c.toRGB() & 0xffff;
-  c.b = (m_binAvg - 5.f) / 30.f + 0.6f;
-  c.g = (m_binStdDev - 0.6f) / 1.8f + 0.75f;
-  c.g *= intensity;
-  c.b *= intensity;
-  m_lights[1].hue = c.toRGB() & 0xffff;
+
+  //float intensity = ((m_bassIntensity - 2.f) / 7.f);
+  float intensity = ((m_sampleIntensity - 2.f) / 1000.f);
+  float hue = (m_binAvg - 2.f) / 4.f + 0.f;
+  float sat = (m_binStdDev - 0.6f) / 3.f + 0.75;
+
+  for (int i = 0; i < m_numLights; ++i) {
+    m_lights[i].hue = static_cast<uint16_t>(static_cast<uint32_t>(hue * 65535 + i * 10000));
+    m_lights[i].sat = static_cast<uint16_t>(CLAMP(sat * 254.f, 0.f, 254.f));
+    m_lights[i].bri = std::max((uint16_t)10,std::min((uint16_t)150, static_cast<uint16_t>(CLAMP(intensity * 254.f, 0.f, 254.f))));
+    m_lights[i].trans = 1;
+  }
 }
 

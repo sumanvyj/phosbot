@@ -67,6 +67,7 @@ private:
   float m_binAvg;
   float m_binStdDev;
   float m_sampleIntensity;
+  float m_bassIntensity;
 
   kiss_fft_scalar* fft_in;
   kiss_fft_cpx* fft_out;
