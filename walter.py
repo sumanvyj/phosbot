@@ -34,9 +34,19 @@ class Walter(object):
     def control_lights(cls, phrase):
         bridge = cls.bridge()
         phrase = phrase.strip()
-        state = speech.commandparser.process_command(phrase)
+        light_names = [light.name for light in bridge.lights]
+        state = speech.commandparser.process_command(phrase, light_names)
+        names = light_names
 
-        names = state.names if state.names else [x.name for x in bridge.lights]
+        if state.names:
+            lower_light_names = {}
+            for light in light_names:
+                lower_light_names[light.lower()] = light
+
+            names = [lower_light_names[name] for name in state.names if name in lower_light_names]
+
+        sys.stderr.write('names=%r\n%r\n' % (names, state,))
+
         command = {}
 
         if state.power is not None:
