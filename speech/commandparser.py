@@ -37,6 +37,7 @@ Volume = _enum(LOUD='loud', SOFT='soft', HIGH='high', LOW='low')
 Extra = _enum(REALLY='really', VERY='very')
 
 # url regex
+# from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 url_re = re.compile(ur'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))')
 
 
