@@ -35,3 +35,17 @@ Actually `make`:
     make
 
 That should be it.
+
+## Setting up on Ubuntu (sans pip stuff for now...)
+
+Download dependencies
+
+  sudo apt-get install libboost-python-dev libSDL-dev libopenal-dev libogg-dev libvorbis-dev cmake
+
+Generate makefiles 'n stuff
+
+  cmake .
+
+And actually build
+
+  make

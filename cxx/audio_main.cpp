@@ -1,7 +1,8 @@
 #include <boost/python.hpp>
 #include "audio/ALSubsystem.h"
 #include "SDL/SDL.h"
-
+#include <complex.h>
+#include <rfftw.h>
 
 ALSubsystem* audio;
 SoundPtr s;
@@ -54,12 +55,40 @@ void update() {
   l /= 10;
   l = std::max(-200, std::min(200, l));
   short r = (reinterpret_cast<short*>(d->pcm))[s->getByteOffset() + 2];
-  printf("%010d : L %010d R %010d\n", s->getByteOffset(),
-    (reinterpret_cast<short*>(d->pcm))[s->getByteOffset()],
-    (reinterpret_cast<short*>(d->pcm))[s->getByteOffset() + 2]);
+  //printf("%010d : L %010d R %010d\n", s->getByteOffset(),
+  //  (reinterpret_cast<short*>(d->pcm))[s->getByteOffset()],
+  //  (reinterpret_cast<short*>(d->pcm))[s->getByteOffset() + 2]);
   unsigned* p = reinterpret_cast<unsigned*>(surface->pixels);
   line(prevx, prevy + 250, pos, l + 250, 0xffffffff, p, 800);
   *(p + (l + 250) * 800 + pos) = 0xffff00ff;
+
+  // dem fouriers:
+  fftw_real *in, *out;
+  rfftw_plan plan;
+
+  int N = 10000;
+  in = (fftw_real*) fftw_malloc(sizeof(fftw_real) * N);
+  out = (fftw_real*) fftw_malloc(sizeof(fftw_real) * N);
+  plan = rfftw_create_plan(N, FFTW_FORWARD, FFTW_ESTIMATE); 
+
+  for (int i = 0; i < N; ++i) {
+    *(reinterpret_cast<float*>(in) + i) =
+      ((float)((reinterpret_cast<short*>(d->pcm))[s->getByteOffset() + i * 2])) / 32768.f;
+  }
+
+  rfftw_one(plan, in, out); /* repeat as needed */
+
+  std::cout<<"---------\n";
+  for (int i = 0; i < 1000; ++i) {
+    if (*(reinterpret_cast<float*>(out) + i) > 10.f && *(reinterpret_cast<float*>(out) + i) < 1000.f)
+      std::cout<<*(reinterpret_cast<float*>(out) + i)<<" at "<<i<<"\n";
+  }
+
+  rfftw_destroy_plan(plan);
+
+  // ...
+
+  fftw_free(in); fftw_free(out);
 
   prevx = pos;
   prevy = l;
@@ -85,7 +114,7 @@ void deinitialize() {
 
 void play_sound(const char* file) {
   s = audio->play2D(file, false);
-  s->setGain(0.f, 1.f, 1.f);
+  s->setGain(0.f, 0.f, 0.f);
   Sound* sound = &(*s);
   if (dynamic_cast<BufferedSound*>(sound)) {
     BufferedSound* bs = dynamic_cast<BufferedSound*>(sound);
