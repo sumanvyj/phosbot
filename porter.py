@@ -3,7 +3,7 @@ from time import clock
 from phue import *
 import config
 
-def main():
+def main(queue=None):
     #b = Bridge(config.BRIDGE_IP)
     #b.connect()
     #b.get_api()

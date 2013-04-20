@@ -31,7 +31,7 @@ class Walter(object):
         return cls._bridge
 
     @classmethod
-    def control_lights(cls, phrase):
+    def control_lights(cls, phrase, queue=None):
         bridge = cls.bridge()
         phrase = phrase.strip()
         light_names = [light.name for light in bridge.lights]
@@ -81,7 +81,7 @@ class Walter(object):
         return state
 
 
-def main(phrase=None):
+def main(phrase=None, queue=None):
     if phrase is not None:
         Walter.control_lights(phrase)
         return
@@ -98,12 +98,12 @@ def main(phrase=None):
                 continue
 
             phrase = USERNAME_RE.sub('', phrase)
-            Walter.control_lights(phrase)
+            Walter.control_lights(phrase, queue)
         if u'direct_message' in msg:
-            Walter.control_lights(msg[u'direct_message'][u'text'])
+            Walter.control_lights(msg[u'direct_message'][u'text'], queue)
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        main(sys.argv[1])
+        main(phrase=sys.argv[1])
     else:
         main()
