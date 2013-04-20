@@ -3,3 +3,4 @@ nltk==2.0.4
 twitter==1.9.2
 webcolors==1.4
 wsgiref==0.1.2
+youtube-dl==2013.04.11

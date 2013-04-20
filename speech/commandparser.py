@@ -7,6 +7,7 @@ The command you're interested in is process_command([cmd])
 '''
 
 import webcolors
+import re
 
 ###################################
 # define some statechange objects #
@@ -34,6 +35,9 @@ Volume = _enum(LOUD='loud', SOFT='soft', HIGH='high', LOW='low')
 
 # extra modifiers
 Extra = _enum(REALLY='really', VERY='very')
+
+# url regex
+url_re = re.compile(ur'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))')
 
 
 class StateChange(object):
@@ -71,7 +75,7 @@ class StateChange(object):
 
     __slots__ = (
         'power', 'setlight', 'changelight', 'fadetime',
-        'names', 'color', 'songcommand', 'songname', 'volume'
+        'names', 'color', 'url', 'songcommand', 'songname', 'volume'
     )
 
     def __init__(self, **kwargs):
@@ -81,6 +85,7 @@ class StateChange(object):
         self.fadetime = kwargs.get('fadetime')
         self.names = kwargs.get('names')
         self.color = kwargs.get('color')
+        self.url = kwargs.get('url')
         self.songcommand = kwargs.get('songcommand')
         self.songname = kwargs.get('songname')
         self.volume = kwargs.get('volume')
@@ -89,10 +94,10 @@ class StateChange(object):
         return self.__str__()
 
     def __str__(self):
-        return '%s(power=%r, setlight=%r, changelight=%r, fadetime=%r, names=%r, color=%r, songcommand=%r, songname=%r, volume=%r)' % (
+        return '%s(power=%r, setlight=%r, changelight=%r, fadetime=%r, names=%r, url=%r, color=%r, songcommand=%r, songname=%r, volume=%r)' % (
             self.__class__.__name__,
             self.power, self.setlight, self.changelight, self.fadetime,
-            self.names, self.color, self.songcommand, self.songname, self.volume
+            self.names, self.url, self.color, self.songcommand, self.songname, self.volume
         )
 
 
@@ -221,6 +226,12 @@ def parse_color(cmd, state):
             continue
     return (cmd, state)
 
+def parse_url(cmd, state):
+    for token in cmd:
+        if url_re.match(token):
+            state.url = token
+            cmd.remove(token)
+            return (cmd, state)
 
 def parse_song(cmd, state):
     if _match(cmd, Song.PAUSE):
@@ -259,10 +270,16 @@ def process_command(cmd, names=list()):
     returns a StateChange object, or None if not a valid command
     '''
     state = StateChange()
-    cmd = cmd.lower().split()
+    cmd = cmd.split()
     names = [n.lower() for n in names]
     _match(cmd, 'turn')
 
+    #cmd, state = parse_url(cmd, state)
+    # break early if a url is given
+    #if state.url != None:
+    #    return state
+
+    cmd = [x.lower() for x in cmd]
     
     cmd, state = parse_song(cmd, state)
     # break early if a song command given
