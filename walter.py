@@ -81,9 +81,8 @@ class Walter(object):
         return state
 
 
-def main():
-    if len(sys.argv) > 1:
-        phrase = sys.argv[1]
+def main(phrase=None):
+    if phrase is not None:
         Walter.control_lights(phrase)
         return
 
@@ -104,4 +103,7 @@ def main():
             Walter.control_lights(msg[u'direct_message'][u'text'])
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 1:
+        main(sys.argv[1])
+    else:
+        main()
