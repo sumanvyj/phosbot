@@ -5,6 +5,7 @@ import sys
 import os
 import re
 import string
+import time
 import colorsys
 import speech.commandparser
 import pprint
@@ -163,10 +164,18 @@ def main(phrase=None, queue=None):
         Walter.control_lights(phrase, queue)
         return
 
-    twitter_stream = TwitterUserStream(auth=OAuth(**config.OAUTH))
+    twitter_stream = TwitterUserStream(auth=OAuth(**config.OAUTH), block=False)
     stream = twitter_stream.user(replies='all')
+    timestamp = time.time()
 
     for msg in stream:
+        if time.time() - timestamp > 3.0:
+            sys.stderr.write('.')
+            timestamp = time.time()
+
+        if msg is None:
+            continue
+
         pprint.pprint(msg, stream=sys.stderr)
 
         if u'text' in msg:

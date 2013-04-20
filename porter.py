@@ -4,6 +4,7 @@ from phue import *
 import config
 import time
 import os
+import sys
 
 SONGS_PATH = 'SONGS_PATH'
 
@@ -41,6 +42,7 @@ def main(queue=None):
           for i in xrange(num_lights):
               light_info = audio.get_light(i)
               if light_info.set:
+                  sys.stderr.write('-')
                   bridge.set_light(i + 1, {
                       'on' : True,
                       'transitiontime' : light_info.trans,
