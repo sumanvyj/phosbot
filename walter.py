@@ -62,6 +62,10 @@ class Walter(object):
             command['hue'] = int(MAX_HUE * h)
             command['sat'] = int(MAX_SATURATION * s)
 
+        if command:
+            bridge.set_light(names, command)
+            pprint.pprint(command, stream=sys.stderr)
+
         if state.changelight is not None:
             for light in bridge.lights:
                 if light.name not in names:
@@ -69,9 +73,6 @@ class Walter(object):
 
                 delta = int(MAX_BRIGHTNESS * (state.changelight / 100.0))
                 light.brightness += delta
-
-        bridge.set_light(names, command)
-        pprint.pprint(command, stream=sys.stderr)
 
         return state
 
