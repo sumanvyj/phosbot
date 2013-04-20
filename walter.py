@@ -77,6 +77,15 @@ class Walter(object):
                     'type' : state.songcommand,
                     'file' : state.songname
                 })
+
+            return
+
+        if state.volume is not None and queue is not None:
+            queue.put({
+                'type': 'volume',
+                'vol' : state.volume
+            })
+
             return
 
         if state.url is not None and queue is not None:
