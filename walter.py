@@ -55,7 +55,10 @@ class Walter(object):
 
 
         if state.changelight is not None:
-            for light in (for x in b.lights if x.name in names):
+            for light in b.lights:
+                if light.name not in names:
+                    continue
+
                 factor = (100 + state.changelight) / 100.0
                 light.brightness = int(light.brightness * factor)
         else:
