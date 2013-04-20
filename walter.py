@@ -39,11 +39,11 @@ class Walter(object):
         names = light_names
 
         if state.names:
-            lower_light_names = {}
+            fuzzy_names = {}
             for light in light_names:
-                lower_light_names[light.lower()] = light
+                fuzzy_names[light.lower()] = light
 
-            names = [lower_light_names[name] for name in state.names if name in lower_light_names]
+            names = [fuzzy_names[name] for name in state.names if name in fuzzy_names]
 
         sys.stderr.write('names=%r\n%r\n' % (names, state,))
 
