@@ -90,7 +90,7 @@ void AudioLightifier::computeLights() {
   for (int i = 0; i < m_numLights; ++i) {
     m_lights[i].hue = static_cast<uint16_t>(static_cast<uint32_t>(hue * 65535 + i * 10000));
     m_lights[i].sat = static_cast<uint16_t>(CLAMP(sat * 254.f, 0.f, 254.f));
-    m_lights[i].bri = std::max((uint16_t)10,std::min((uint16_t)150, static_cast<uint16_t>(CLAMP(intensity * 254.f, 0.f, 254.f))));
+    m_lights[i].bri = std::max((uint16_t)10,std::min((uint16_t)254, static_cast<uint16_t>(CLAMP(intensity * 254.f, 0.f, 254.f))));
     m_lights[i].trans = 1;
   }
 }
