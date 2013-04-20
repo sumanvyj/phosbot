@@ -47,7 +47,7 @@ void add_file(const char* name) {
 }
 
 bool is_audio_playing() {
-  audio->isPlaying();
+  return audio->isPlaying();
 }
 
 Light get_light(int idx) {
