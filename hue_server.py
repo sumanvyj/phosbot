@@ -1,6 +1,7 @@
 from cxx import audio
 from time import clock
 from twitter import *
+from phue import *
 import sys
 import config
 
@@ -23,7 +24,8 @@ twitter_stream = TwitterStream(auth=auth)
 stream = twitter_stream.statuses.sample()
 
 for tweet in stream:
-    sys.stdout.write('%r\n' % tweet[u'text'])
+    if u'text' in tweet:
+        sys.stdout.write('%r\n' % tweet[u'text'])
 
 # TODO implement the server part...
 
