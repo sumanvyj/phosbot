@@ -42,6 +42,7 @@ class StateChange(object):
         if None, no change of state.
     StateChange.fadetime
         a fade time in seconds.  {a time in 1/10ths seconds}
+        negative time values indicate fade out, positive values fade in
         if None, default fade time.  if 0, instant change
     StateChange.names
         the names of the lights to target.  {a list of light names}
