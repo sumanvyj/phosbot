@@ -137,7 +137,7 @@ void AudioManager::playSound(const char* filename) {
 }
 
 void AudioManager::pauseSound() { 
-  if (!m_nowPlaying.isDone()) {
+  if (!m_nowPlaying.isNull() && !m_nowPlaying.isDone()) {
     m_nowPlaying->pause();
   } else if (!m_nowPlaying.isNull()) {
     m_nowPlaying.setNull();
