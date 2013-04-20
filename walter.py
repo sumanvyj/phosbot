@@ -2,10 +2,12 @@ from twitter import *
 from phue import *
 import config
 import sys
-import pprint
+import os
 import re
+import string
 import colorsys
 import speech.commandparser
+import pprint
 
 class TwitterUserStream(TwitterStream):
     def __init__(self, *args, **kwargs):
@@ -18,6 +20,8 @@ MAX_COLOR = 255.0
 MAX_HUE = 65535
 MAX_SATURATION = 254
 MAX_BRIGHTNESS = 254
+SONGS_PATH = 'SONGS_PATH'
+TABLE = string.maketrans('-_', '  ')
 
 
 class Walter(object):
@@ -48,6 +52,26 @@ class Walter(object):
         sys.stderr.write('names=%r\n%r\n' % (names, state,))
 
         command = {}
+
+        if state.song is not None:
+            song = state.song.lower()
+            songs = os.environ[SONGS_PATH] if SONGS_PATH in os.environ else './songs'
+            files = os.listdir(songs)
+
+            fuzzy_files = {}
+            for f in files:
+                fn = f.split('.')[0:-1].join('.').lower().translate(TABLE)
+                fuzzy_files[fn] = f
+
+            if song in fuzzy_files:
+                song = fuzzy_files[song]
+                if queue is not None:
+                    queue.put({
+                        'type' : 'play',
+                        'file' : song
+                    })
+
+            return
 
         if state.power is not None:
             command['on'] = state.power

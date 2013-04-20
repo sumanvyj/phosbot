@@ -28,6 +28,8 @@ public:
 
   bool isPlaying();
 
+  AudioLightifier* getLightifier() { return &m_lightifier; }
+
 private:
 
   // The audio magic

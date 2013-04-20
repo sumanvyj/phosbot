@@ -4,27 +4,33 @@ from phue import *
 import config
 
 def main(queue=None):
-    #b = Bridge(config.BRIDGE_IP)
-    #b.connect()
-    #b.get_api()
-
-    #lights = b.get_light_objects('id')
-    #num_lights = len(lights)
-    num_lights = 2
+    bridge = Bridge(config.BRIDGE_IP)
+    lights = bridge.get_light_objects('id')
+    num_lights = len(lights)
 
     # Set up an OpenAL context and stuff
     audio.initialize(num_lights)
 
-    #audio.add_file("click.ogg");
-    #audio.add_file("calm1.ogg");
+    audio.play_sound("cutandrun.ogg");
 
-    audio.play_sound("click.ogg");
-
-    while audio.is_audio_playing():
+    while True:
+      # TODO process stuff from the queue!
       audio.update()
 
-    # TODO implement the server part...
-
+      # If we have audio playing currently, then loop through and ask
+      # the audio module for each light's info
+      if audio.is_audio_playing():
+          for i in xrange(num_lights):
+              light_info = audio.get_light(i)
+              if light_info.set:
+                  bridge.set_light(i + 1, {
+                      'on' : True,
+                      'transitiontime' : light_info.trans,
+                      'hue' : light_info.hue,
+                      'bri' : light_info.bri,
+                      'sat' : light_info.sat
+                  })
+      
     # Cleanup after audio stuffs
     audio.deinitialize()
 
