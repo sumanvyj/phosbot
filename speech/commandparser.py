@@ -70,14 +70,19 @@ def _match(cmd, key):
         return True
     return False
 
+def _hasextra(cmd):
+    return 'really' in cmd or 'very' in cmd
+
 def parse_power(cmd, state):
     val = 0
+    extra = _hasextra(cmd)
     # no elifs because someone may say "Turn on lights to dim"
     # more of a key-word search
     if _match(cmd, Power.ON) or _match(cmd, Power.BRIGHT):
         val = 100
     if _match(cmd, Power.DIM):
         val = 30
+        val = val/2 if extra else val
     if _match(cmd, Power.OFF):
         val = 0
     state.power = val
@@ -85,12 +90,14 @@ def parse_power(cmd, state):
 
 def parse_brightness(cmd, state):
     val = 0
+    extra = _hasextra(cmd)
     # no elifs because someone may say "Turn down lights to dimmer"
     # more of a key-word search
     if _match(cmd, Bright.UP) or _match(cmd, Bright.BRIGHTER):
         val = 40
     if _match(cmd, Bright.DOWN) or _match(cmd, Bright.DIMMER):
         val = -40
+    val = val*2 if extra else val
     state.brightness = val
     return (cmd, state)
 
