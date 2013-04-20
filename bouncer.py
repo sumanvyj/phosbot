@@ -1,13 +1,14 @@
 from threading import *
 from Queue import *
+import sys
 import time
 import walter
 import porter
 
-def main():
+def main(phrase=None):
     queue = Queue()
-    walter_t = Thread(target=lambda: walter.main(None, queue))
-    porter_t = Thread(target=lambda: porter.main(queue))
+    walter_t = Thread(target=lambda: walter.main(phrase=phrase, queue=queue))
+    porter_t = Thread(target=lambda: porter.main(queue=queue))
 
     walter_t.daemon = True
     porter_t.daemon = True
@@ -22,4 +23,7 @@ def main():
         return
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 1:
+        main(sys.argv[1])
+    else:
+        main()
