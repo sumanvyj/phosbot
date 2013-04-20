@@ -3,16 +3,25 @@ from phue import *
 import sys
 import config
 
-"""
-auth = OAuth(
-    config.OAUTH_TOKEN, config.OAUTH_SECRET,
-    config.CONSUMER_KEY, config.CONSUMER_SECRET
-)
-"""
-auth = UserPassAuth(config.USERNAME, config.PASSWORD)
-twitter_stream = TwitterStream(auth=auth)
-stream = twitter_stream.statuses.sample()
+class TwitterUserStream(TwitterStream):
+    def __init__(self, *args, **kwargs):
+        kwargs['domain'] = 'userstream.twitter.com'
+        super(self.__class__, self).__init__(*args, **kwargs)
 
-for tweet in stream:
-    if u'text' in tweet:
-        sys.stdout.write('%r\n' % tweet[u'text'])
+
+class Walter(object):
+    @staticmethod
+    def control_lights(phrase):
+        pass
+
+def main():
+    twitter_stream = TwitterUserStream(auth=OAuth(**config.OAUTH))
+    stream = twitter_stream.user(replies='all')
+
+    for tweet in stream:
+        if u'text' in tweet:
+            Walter.control_lights(u'text')
+            sys.stderr.write('%r\n' % tweet)
+
+if __name__ == '__main__':
+    main()
