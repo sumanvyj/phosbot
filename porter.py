@@ -20,15 +20,16 @@ def main(queue=None):
       # If we have audio playing currently, then loop through and ask
       # the audio module for each light's info
       if audio.is_audio_playing():
-        for i in range(num_lights):
-          light_info = audio.get_light(i)
-          if light_info.set:
-            command =  { 'on' : True,
-              'transitiontime' : light_info.trans,
-              'hue' : light_info.hue, 
-              'bri' : light_info.bri,
-              'sat' : light_info.sat}
-            bridge.set_light(i + 1, command)
+          for i in xrange(num_lights):
+              light_info = audio.get_light(i)
+              if light_info.set:
+                  bridge.set_light(i + 1, {
+                      'on' : True,
+                      'transitiontime' : light_info.trans,
+                      'hue' : light_info.hue,
+                      'bri' : light_info.bri,
+                      'sat' : light_info.sat
+                  })
       
     # Cleanup after audio stuffs
     audio.deinitialize()
