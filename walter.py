@@ -14,10 +14,10 @@ class TwitterUserStream(TwitterStream):
 
 
 USERNAME_RE = re.compile('^%s' % config.USERNAME, re.IGNORECASE)
-MAX_BRIGHTNESS = 254
 MAX_COLOR = 255.0
 MAX_HUE = 65535
 MAX_SATURATION = 254
+MAX_BRIGHTNESS = 254
 
 
 class Walter(object):
@@ -67,10 +67,11 @@ class Walter(object):
                 if light.name not in names:
                     continue
 
-                factor = (100 + state.changelight) / 100.0
-                light.brightness = int(light.brightness * factor)
+                delta = int(MAX_BRIGHTNESS * (state.changelight / 100.0))
+                light.brightness += delta
 
         bridge.set_light(names, command)
+        pprint.pprint(command, stream=sys.stderr)
 
         return state
 
