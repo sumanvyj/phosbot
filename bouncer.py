@@ -1,15 +1,25 @@
 from threading import *
 from Queue import *
+import time
 import walter
 import porter
 
 def main():
     queue = Queue()
-    thread_walter = Thread(target=lambda: walter.main(None, queue))
-    thread_porter = Thread(target=lambda: porter.main(queue))
+    walter_t = Thread(target=lambda: walter.main(None, queue))
+    porter_t = Thread(target=lambda: porter.main(queue))
 
-    thread_walter.start()
-    thread_porter.start()
+    walter_t.daemon = True
+    porter_t.daemon = True
+
+    walter_t.start()
+    porter_t.start()
+
+    try:
+        while True:
+            time.sleep(0.01)
+    except (KeyboardInterrupt, SystemExit):
+        return
 
 if __name__ == '__main__':
     main()
