@@ -75,7 +75,7 @@ class Walter(object):
 
                 queue.put({
                     'type' : state.songcommand,
-                    'file' : state.songname
+                    'file' : song
                 })
 
             return
