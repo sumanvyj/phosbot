@@ -4,7 +4,7 @@ This will be a snazzy server thingy that controls hue lights and stuff.
 
 Using Homebrew, first make sure all these packages are installed:
 
-    brew install boost libogg libvorbis sdl cmake
+    brew install boost libogg libvorbis sdl cmake ffmpeg
 
 Install `pip`:
 
@@ -40,7 +40,7 @@ That should be it.
 
 Download dependencies:
 
-    sudo apt-get install libboost-python-dev libSDL-dev libopenal-dev libogg-dev libvorbis-dev cmake python-pip python-virtualenv
+    sudo apt-get install libboost-python-dev libSDL-dev libopenal-dev libogg-dev libvorbis-dev cmake python-pip python-virtualenv ffmpeg
 
 Make a virtualenv called `phosbot`:
 
