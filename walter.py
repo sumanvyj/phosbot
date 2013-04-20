@@ -61,22 +61,27 @@ class Walter(object):
         command = {}
 
         if state.songcommand is not None and queue is not None:
-            song = state.songname.lower()
-            songs = os.environ[SONGS_PATH] if SONGS_PATH in os.environ else './songs'
-            files = os.listdir(songs)
-
-            fuzzy_files = {}
-            for f in files:
-                fn = '.'.join(f.split('.')[0:-1]).lower().translate(TABLE)
-                fuzzy_files[fn] = f
-
-            if song in fuzzy_files:
-                song = fuzzy_files[song]
-
+            if state.songname is None:
                 queue.put({
-                    'type' : state.songcommand,
-                    'file' : song
+                    'type' : state.songcommand
                 })
+            else:
+                song = state.songname.lower()
+                songs = os.environ[SONGS_PATH] if SONGS_PATH in os.environ else './songs'
+                files = os.listdir(songs)
+
+                fuzzy_files = {}
+                for f in files:
+                    fn = '.'.join(f.split('.')[0:-1]).lower().translate(TABLE)
+                    fuzzy_files[fn] = f
+
+                if song in fuzzy_files:
+                    song = fuzzy_files[song]
+
+                    queue.put({
+                        'type' : state.songcommand,
+                        'file' : song
+                    })
 
             return
 
