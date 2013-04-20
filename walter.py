@@ -1,9 +1,11 @@
 from twitter import *
 from phue import *
-import sys
 import config
-import speech.commandparser
+import sys
+import pprint
 import re
+import colorsys
+import speech.commandparser
 
 class TwitterUserStream(TwitterStream):
     def __init__(self, *args, **kwargs):
@@ -11,9 +13,15 @@ class TwitterUserStream(TwitterStream):
         super(self.__class__, self).__init__(*args, **kwargs)
 
 
+USERNAME_RE = re.compile('^%s' % config.USERNAME, re.IGNORECASE)
+MAX_BRIGHTNESS = 254
+MAX_COLOR = 255.0
+MAX_HUE = 65535
+MAX_SATURATION = 254
+
+
 class Walter(object):
     _bridge = None
-    _username_re = re.compile('^%s' % config.USERNAME, re.IGNORECASE)
 
     @classmethod
     def bridge(cls):
@@ -22,29 +30,20 @@ class Walter(object):
 
         return cls._bridge
 
-    MAX_BRIGHTNESS = 254
-    MAX_COLOR = 255.0
-    MAX_HUE = 65535
-    MAX_SATURATION = 254
-
     @classmethod
     def control_lights(cls, phrase):
-        if cls._username_re.search(phrase) is None:
-            return None
-
-        b = cls.bridge()
-        phrase = cls._username_re.sub('', phrase).strip()
-
+        bridge = cls.bridge()
+        phrase = phrase.strip()
         state = speech.commandparser.process_command(phrase)
 
-        names = state.names if state.names else [x.name for x in b.lights]
+        names = state.names if state.names else [x.name for x in bridge.lights]
         command = {}
 
         if state.power is not None:
             command['on'] = state.power
 
         if state.setlight is not None:
-            command['brightness'] = int(cls.MAX_BRIGHTNESS * (state.setlight / 100.0))
+            command['bri'] = int(MAX_BRIGHTNESS * (state.setlight / 100.0))
 
         if state.color is not None:
             r, g, b = state.color
@@ -53,16 +52,15 @@ class Walter(object):
             command['hue'] = int(MAX_HUE * h)
             command['sat'] = int(MAX_SATURATION * s)
 
-
         if state.changelight is not None:
-            for light in b.lights:
+            for light in bridge.lights:
                 if light.name not in names:
                     continue
 
                 factor = (100 + state.changelight) / 100.0
                 light.brightness = int(light.brightness * factor)
-        else:
-            b.set_light(names, command)
+
+        bridge.set_light(names, command)
 
         return state
 
@@ -71,10 +69,18 @@ def main():
     twitter_stream = TwitterUserStream(auth=OAuth(**config.OAUTH))
     stream = twitter_stream.user(replies='all')
 
-    for tweet in stream:
-        if u'text' in tweet:
-            Walter.control_lights(tweet[u'text'])
-            sys.stderr.write('%r\n' % tweet)
+    for msg in stream:
+        pprint.pprint(msg, stream=sys.stderr)
+
+        if u'text' in msg:
+            phrase = msg[u'text']
+            if USERNAME_RE.search(phrase) is None:
+                continue
+
+            phrase = USERNAME_RE.sub('', phrase)
+            Walter.control_lights(phrase)
+        if u'direct_message' in msg:
+            Walter.control_lights(msg[u'direct_message'][u'text'])
 
 if __name__ == '__main__':
     main()
