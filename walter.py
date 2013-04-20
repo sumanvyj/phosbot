@@ -27,7 +27,7 @@ TABLE = string.maketrans('-_', '  ')
 VALID_FILENAME_CHARS = "-_.() %s%s" % (string.ascii_letters, string.digits)
 
 def cleanFilename(filename):
-    filename = unicode("_".join(filename.strip().split()))
+    filename = unicode("_".join(filename.lower().strip().split()))
     cleanedFilename = unicodedata.normalize('NFKD', filename).encode('ASCII', 'ignore')
     return ''.join(c for c in cleanedFilename if c in VALID_FILENAME_CHARS)
 
