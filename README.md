@@ -38,13 +38,9 @@ That should be it.
 
 ## Setting up on Ubuntu (sans pip stuff for now...)
 
-Download dependencies
+Download dependencies:
 
-    sudo apt-get install libboost-python-dev libSDL-dev libopenal-dev libogg-dev libvorbis-dev cmake python-pip
-
-Install `virtualenv`:
-
-    sudo pip install virtualenv
+    sudo apt-get install libboost-python-dev libSDL-dev libopenal-dev libogg-dev libvorbis-dev cmake python-pip python-virtualenv
 
 Make a virtualenv called `phosbot`:
 
