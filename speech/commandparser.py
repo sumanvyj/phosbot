@@ -22,9 +22,11 @@ SetLight = _enum(BRIGHT='bright', DIM='dim', HALF='half', FULL='full')
 # relative brightness
 ChangeLight = _enum(UP='up', DOWN='down', BRIGHTER='brighter', DIMMER='dimmer')
 # a fade time
-FadeTime = _enum(FADE='fade', IN='in', OUT='out', 
-                 FAST='fast', QUICKLY='quickly',
-                 SLOW='slow', SLOWLY='slowly', SNAP='snap')
+FadeTime = _enum(
+    FADE='fade', IN='in', OUT='out',
+    FAST='fast', QUICKLY='quickly',
+    SLOW='slow', SLOWLY='slowly', SNAP='snap'
+)
 # song commands
 Song = _enum(PLAY='play', PARTY='party', PAUSE='pause', UNPAUSE='unpause')
 # song volume
@@ -106,12 +108,12 @@ def _hasextra(cmd):
     return Extra.REALLY in cmd or Extra.VERY in cmd
 
 def parse_power(cmd, state):
-    val = None
+    state.power = None
     if _match(cmd, Power.ON):
-        val = True
+        state.power = True
     if _match(cmd, Power.OFF):
-        val = False
-    state.power = val
+        state.power = False
+
     return (cmd, state)
 
 
@@ -247,11 +249,11 @@ def process_command(cmd, names=list()):
     names = [n.lower() for n in names]
     _match(cmd, 'turn')
 
+    cmd, state = parse_names(cmd, state, names)
     cmd, state = parse_power(cmd, state)
     cmd, state = parse_setlight(cmd, state)
     cmd, state = parse_changelight(cmd, state)
     cmd, state = parse_fadetime(cmd, state)
-    cmd, state = parse_names(cmd, state, names)
     cmd, state = parse_color(cmd, state)
     cmd, state = parse_song(cmd, state)
     cmd, state = parse_eastereggs(cmd, state)

@@ -31,7 +31,7 @@ class Walter(object):
         return cls._bridge
 
     @classmethod
-    def control_lights(cls, phrase):
+    def control_lights(cls, phrase, queue=None):
         bridge = cls.bridge()
         phrase = phrase.strip()
         light_names = [light.name for light in bridge.lights]
@@ -55,12 +55,20 @@ class Walter(object):
         if state.setlight is not None:
             command['bri'] = int(MAX_BRIGHTNESS * (state.setlight / 100.0))
 
+        if state.fadetime is not None:
+            command['on'] = state.fadetime >= 0
+            command['transitiontime'] = abs(state.fadetime)
+
         if state.color is not None:
             r, g, b = state.color
             r, g, b = r / MAX_COLOR, g / MAX_COLOR, b / MAX_COLOR
             h, s, v = colorsys.rgb_to_hsv(r, g, b)
             command['hue'] = int(MAX_HUE * h)
             command['sat'] = int(MAX_SATURATION * s)
+
+        if command:
+            bridge.set_light(names, command)
+            pprint.pprint(command, stream=sys.stderr)
 
         if state.changelight is not None:
             for light in bridge.lights:
@@ -70,16 +78,13 @@ class Walter(object):
                 delta = int(MAX_BRIGHTNESS * (state.changelight / 100.0))
                 light.brightness += delta
 
-        bridge.set_light(names, command)
-        pprint.pprint(command, stream=sys.stderr)
-
         return state
 
 
-def main():
-    if len(sys.argv) > 1:
-        phrase = sys.argv[1]
-        Walter.control_lights(phrase)
+def main(phrase=None, queue=None):
+    if phrase is not None:
+        Walter.control_lights(phrase, queue)
+        return
 
     twitter_stream = TwitterUserStream(auth=OAuth(**config.OAUTH))
     stream = twitter_stream.user(replies='all')
@@ -93,9 +98,12 @@ def main():
                 continue
 
             phrase = USERNAME_RE.sub('', phrase)
-            Walter.control_lights(phrase)
+            Walter.control_lights(phrase, queue)
         if u'direct_message' in msg:
-            Walter.control_lights(msg[u'direct_message'][u'text'])
+            Walter.control_lights(msg[u'direct_message'][u'text'], queue)
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 1:
+        main(phrase=sys.argv[1])
+    else:
+        main()
