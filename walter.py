@@ -83,7 +83,7 @@ class Walter(object):
 
 def main(phrase=None, queue=None):
     if phrase is not None:
-        Walter.control_lights(phrase)
+        Walter.control_lights(phrase, queue)
         return
 
     twitter_stream = TwitterUserStream(auth=OAuth(**config.OAUTH))

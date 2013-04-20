@@ -5,7 +5,7 @@ import porter
 
 def main():
     queue = Queue()
-    thread_walter = Thread(target=lambda: walter.main(queue))
+    thread_walter = Thread(target=lambda: walter.main(None, queue))
     thread_porter = Thread(target=lambda: porter.main(queue))
 
     thread_walter.start()
