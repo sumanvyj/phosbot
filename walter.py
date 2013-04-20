@@ -148,6 +148,11 @@ class Walter(object):
 
         return state
 
+
+def user_okay(user):
+    return user in config.USER_WHITELIST
+
+
 def main(phrase=None, queue=None):
     if phrase is not None:
         Walter.control_lights(phrase, queue)
@@ -160,13 +165,24 @@ def main(phrase=None, queue=None):
         pprint.pprint(msg, stream=sys.stderr)
 
         if u'text' in msg:
+            username = msg[u'screen_name']
+            if not user_okay(username):
+                sys.stderr.write('%r not in whitelist (%r)' % (username, config.USER_WHITELIST))
+                continue
+
             phrase = msg[u'text']
             if USERNAME_RE.search(phrase) is None:
                 continue
 
             phrase = USERNAME_RE.sub('', phrase)
             Walter.control_lights(phrase, queue)
+
         if u'direct_message' in msg:
+            username = msg[u'direct_message'][u'sender_screen_name']
+            if not user_okay(username):
+                sys.stderr.write('%r not in whitelist (%r)' % (username, config.USER_WHITELIST))
+                continue
+
             Walter.control_lights(msg[u'direct_message'][u'text'], queue)
 
 if __name__ == '__main__':
