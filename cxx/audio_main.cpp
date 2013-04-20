@@ -2,7 +2,7 @@
 #include "audio/ALSubsystem.h"
 #include "SDL/SDL.h"
 #include <complex.h>
-#include <rfftw.h>
+//#include <rfftw.h>
 
 ALSubsystem* audio;
 SoundPtr s;
@@ -63,7 +63,7 @@ void update() {
   *(p + (l + 250) * 800 + pos) = 0xffff00ff;
 
   // dem fouriers:
-  fftw_real *in, *out;
+  /*fftw_real *in, *out;
   rfftw_plan plan;
 
   int N = 10000;
@@ -76,7 +76,7 @@ void update() {
       ((float)((reinterpret_cast<short*>(d->pcm))[s->getByteOffset() + i * 2])) / 32768.f;
   }
 
-  rfftw_one(plan, in, out); /* repeat as needed */
+  rfftw_one(plan, in, out);
 
   std::cout<<"---------\n";
   for (int i = 0; i < 1000; ++i) {
@@ -88,7 +88,7 @@ void update() {
 
   // ...
 
-  fftw_free(in); fftw_free(out);
+  fftw_free(in); fftw_free(out);*/
 
   prevx = pos;
   prevy = l;
@@ -114,7 +114,7 @@ void deinitialize() {
 
 void play_sound(const char* file) {
   s = audio->play2D(file, false);
-  s->setGain(0.f, 0.f, 0.f);
+  s->setGain(0.f, 1.f, 1.f);
   Sound* sound = &(*s);
   if (dynamic_cast<BufferedSound*>(sound)) {
     BufferedSound* bs = dynamic_cast<BufferedSound*>(sound);
