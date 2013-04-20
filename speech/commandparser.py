@@ -91,7 +91,7 @@ def parse_power(cmd, state):
         val = 100
     if _match(cmd, Power.DIM):
         val = 30
-        val /= 2 if extra else val
+        val /= 2 if extra else 1
     if _match(cmd, Power.OFF):
         val = 0
 
@@ -109,7 +109,7 @@ def parse_brightness(cmd, state):
     if _match(cmd, Bright.DOWN) or _match(cmd, Bright.DIMMER):
         val = -40
 
-    val *= 2 if extra else val
+    val *= 2 if extra else 1
     state.brightness = val
     return (cmd, state)
 
