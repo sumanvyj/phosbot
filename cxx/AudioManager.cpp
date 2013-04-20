@@ -59,6 +59,9 @@ void AudioManager::update() {
     int ster = m_data->stereo ? 2 : 1;
     uint32_t offset = 44100 * (1.3f + m_nowPlaying->getSecondOffset() / 430.f) * ster; // 1.3 seconds!
 
+    if (m_nowPlaying->getByteOffset() + offset + AudioLightifier::WINDOW_SIZE >= m_data->size) {
+      return;
+    }
     m_lightifier.sample(m_nowPlaying->getByteOffset() + offset);
 
   #ifdef DEBUG_VIZ
@@ -114,9 +117,16 @@ void AudioManager::playSound(const char* filename) {
     // select a random song
     filename = m_audioFiles[rand() % m_audioFiles.size()].c_str();
   }
+
   std::string fn(filename);
-  fn = std::string("songs/") + fn;
+  if (const char* e = getenv("SONGS_PATH"))
+    fn = std::string(e) + fn;
+  else
+    fn = std::string("songs/") + fn;
   m_nowPlaying = m_audio->play2D(fn.c_str(), false);
+  if (m_nowPlaying.isNull()) {
+    return;
+  }
   m_nowPlaying->setGain(0.f, 1.f, 1.f);
   Sound* sound = &(*m_nowPlaying);
   if (dynamic_cast<BufferedSound*>(sound)) {
