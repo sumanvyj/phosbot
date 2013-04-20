@@ -1,7 +1,11 @@
 #include "AudioManager.h"
 
+#ifdef DEBUG_VIZ
 static void line(int x0, int y0, int x1, int y1, unsigned value,
   unsigned* buf, int stride);
+static void square(int x0, int y0, int w, int h, unsigned value,
+  unsigned* buf, int stride);
+#endif
 
 AudioManager::AudioManager(int num_lights)
   :m_initialized(false),
@@ -49,21 +53,28 @@ void AudioManager::deinit() {
 void AudioManager::update() {
   m_audio->_update(0.f);
 
-  m_lightifier.sample((m_nowPlaying->getByteOffset() 
-    / AudioLightifier::WINDOW_SIZE) * AudioLightifier::WINDOW_SIZE);
+  m_lightifier.sample(m_nowPlaying->getByteOffset());
+  //printf("%d\n", (int));
 
 #ifdef DEBUG_VIZ
 
-  if (isPlaying() && false) {
+
+  //if (m_nowPlaying->getSecondOffset() > 45.f) {
+  //  printf("!!!!\n");
+  //}
+
+  //printf("%f %d\n", m_nowPlaying->getSecondOffset(), m_nowPlaying->getByteOffset());
+
+  if (isPlaying()) {
     //static int sp = 0;
     unsigned* p = reinterpret_cast<unsigned*>(m_surface->pixels);
     int l = (reinterpret_cast<short*>(m_data->pcm))
-      [m_nowPlaying->getByteOffset()];
-    l /= 1000;
+      [m_nowPlaying->getByteOffset()/2];
+    l /= 10;
     l = std::max(-100, std::min(100, l));
-    short r = (reinterpret_cast<short*>(m_data->pcm))
-      [m_nowPlaying->getByteOffset() % AudioLightifier::WINDOW_SIZE + 2];
-    line(prevx, prevy + 350, pos, l + 350, 0xffffffff, p, 800);
+    //short r = (reinterpret_cast<short*>(m_data->pcm))
+      //[m_nowPlaying->getByteOffset() % AudioLightifier::WINDOW_SIZE + 2];
+    //line(prevx, prevy + 350, pos, l + 350, 0xffffffff, p, 800);
     *(p + (l + 350) * 800 + pos) = 0xffff00ff;
     prevx = pos;
     prevy = l;
@@ -75,6 +86,11 @@ void AudioManager::update() {
       prevx = 0;
       prevy = 0;
     }
+
+    for (int i = 0; i < m_numLights; ++i) {
+      square(50 + i * 150, 325, 100, 100, m_lightifier.getLight(i)->color, p, 800);
+    }
+
     memset(p, 0, 800*250*4);
     float* bins = m_lightifier.getBins();
 
@@ -84,7 +100,6 @@ void AudioManager::update() {
     }
 
     SDL_Flip(m_surface);
-    //usleep(10000);
   }
 #endif
 }
@@ -154,6 +169,14 @@ void line(int x0, int y0, int x1, int y1, unsigned value, unsigned* buf, int str
     if (e2 < dx) {
       err += dx;
       y0 += sy;
+    }
+  }
+}
+
+void square(int x0, int y0, int w, int h, unsigned value, unsigned* buf, int stride) {
+  for (int y = y0; y < h + y0; ++y) {
+    for (int x = x0; x < w + x0; ++x) {
+      *(buf + y * stride + x) = value;
     }
   }
 }

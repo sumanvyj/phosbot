@@ -3,18 +3,22 @@
 #include "SDL/SDL.h"
 //#include <rfftw.h>
 #include "AudioManager.h"
+#include <sys/time.h>
+#include <unistd.h>
 
 #ifndef __APPLE__
   #define DEBUG_VIZ
 #endif
 
 AudioManager* audio;
+struct timeval last_req;
 
 void initialize(int num_lights) {
   if (!audio) {
     audio = new AudioManager(num_lights);
   }
   audio->init();
+  gettimeofday(&last_req, 0);
 }
 
 void update() {
@@ -50,6 +54,11 @@ bool is_audio_playing() {
   audio->isPlaying();
 }
 
+int get_light(int idx) {
+  int out = (audio->getLightifier()->getLight(idx)->color & 0xffff);
+  return out;
+}
+
 BOOST_PYTHON_MODULE(audio) {
     using namespace boost::python;
     def("initialize", initialize);
@@ -61,5 +70,6 @@ BOOST_PYTHON_MODULE(audio) {
     def("play_sound", play_sound);
     def("add_file", add_file);
     def("is_audio_playing", is_audio_playing);
+    def("get_light", get_light);
 }
 

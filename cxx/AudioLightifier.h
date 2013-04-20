@@ -21,6 +21,24 @@ public:
 
   static unsigned WINDOW_SIZE;
 
+  struct Light {
+    uint32_t color;
+  };
+
+  class fColor {
+  public:
+    float r,g,b;
+    fColor(float r_ = 0.f, float g_ = 0.f, float b_ = 0.f) 
+      :r(r_),g(g_),b(b_) {}
+
+    uint32_t toRGB() {
+      unsigned char rc = std::min(255.0f, std::max(0.0f, r * 255.0f));
+      unsigned char gc = std::min(255.0f, std::max(0.0f, g * 255.0f));
+      unsigned char bc = std::min(255.0f, std::max(0.0f, b * 255.0f));
+      return (rc << 16) | (gc << 8) | (bc);
+    }
+  };
+
   AudioLightifier(int num_lights);
   ~AudioLightifier();
 
@@ -29,17 +47,29 @@ public:
 
   // returns a pointer to frequency/decibel bins
   float* getBins();
+
+  Light* getLight(int idx) { return &m_lights[idx]; }
   
 private:
-  
+
+  void computeLights();
+
   SoundData* m_data;
   int m_numLights;
 
   // FFT output (processed into decibels)
   float* m_bins;
 
+  float m_binAvg;
+  float m_binStdDev;
+  float m_sampleIntensity;
+
   kiss_fft_scalar* fft_in;
   kiss_fft_cpx* fft_out;
+
+  fColor prevColor;
+
+  std::vector<Light> m_lights;
 };
 
 #endif
