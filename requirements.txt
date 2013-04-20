@@ -1,4 +1,5 @@
 PyYAML==3.10
 nltk==2.0.4
 twitter==1.9.2
+webcolors==1.4
 wsgiref==0.1.2
