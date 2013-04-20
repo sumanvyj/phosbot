@@ -22,9 +22,11 @@ SetLight = _enum(BRIGHT='bright', DIM='dim', HALF='half', FULL='full')
 # relative brightness
 ChangeLight = _enum(UP='up', DOWN='down', BRIGHTER='brighter', DIMMER='dimmer')
 # a fade time
-FadeTime = _enum(FADE='fade', IN='in', OUT='out', 
-                 FAST='fast', QUICKLY='quickly',
-                 SLOW='slow', SLOWLY='slowly', SNAP='snap')
+FadeTime = _enum(
+    FADE='fade', IN='in', OUT='out',
+    FAST='fast', QUICKLY='quickly',
+    SLOW='slow', SLOWLY='slowly', SNAP='snap'
+)
 # song volume
 Volume = _enum(LOUD='loud', SOFT='soft', HIGH='high', LOW='low')
 
@@ -103,12 +105,12 @@ def _hasextra(cmd):
     return Extra.REALLY in cmd or Extra.VERY in cmd
 
 def parse_power(cmd, state):
-    val = None
+    state.power = None
     if _match(cmd, Power.ON):
-        val = True
+        state.power = True
     if _match(cmd, Power.OFF):
-        val = False
-    state.power = val
+        state.power = False
+
     return (cmd, state)
 
 
