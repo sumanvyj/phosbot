@@ -23,7 +23,8 @@ SetLight = _enum(BRIGHT='bright', DIM='dim', HALF='half', FULL='full')
 ChangeLight = _enum(UP='up', DOWN='down', BRIGHTER='brighter', DIMMER='dimmer')
 # a fade time
 FadeTime = _enum(FADE='fade', IN='in', OUT='out', 
-                 FAST='fast', SLOW='slow', SNAP='snap')
+                 FAST='fast', QUICKLY='quickly',
+                 SLOW='slow', SLOWLY='slowly', SNAP='snap')
 # song volume
 Volume = _enum(LOUD='loud', SOFT='soft', HIGH='high', LOW='low')
 
@@ -40,7 +41,7 @@ class StateChange(object):
         relative brightness change.  {a 0-100 percentage brightness change}
         if None, no change of state.
     StateChange.fadetime
-        a fade time in seconds.  {a time in milliseconds}
+        a fade time in seconds.  {a time in 1/10ths seconds}
         if None, default fade time.  if 0, instant change
     StateChange.names
         the names of the lights to target.  {a list of light names}
@@ -145,18 +146,39 @@ def parse_fadetime(cmd, state):
 
     if _match(cmd, FadeTime.SNAP):
         val = 0
-    if _match(cmd, FadeTime.FAST):
-        val = 500
-        val /= 2 if extra else 1
-    if _match(cmd, FadeTime.SLOW):
-        val = 5000
-        val *= 2 if extra else 1
 
+    ########### 
+    # REMEMBER:  VALUES ARE 10ths OF SECONDS
+    ########### 
     try:
         index = cmd.index(FadeTime.FADE)
+        # if no 'fade', will Error and drop to bottom
+        print "got it"
+
+        # default fade time of 1 second
+        val = 10
+        if _match(cmd, FadeTime.FAST) or _match(cmd, FadeTime.QUICKLY):
+            # instantly, or in one 10th of a second
+            val = 0 if extra else 1
+        if _match(cmd, FadeTime.SLOW) or _match(cmd, FadeTime.SLOWLY):
+            val = 50
+            val *= 2 if extra else 1
+
+        # find out if its 'in' or 'out'
         token = cmd[index+1]
+        if token == FadeTime.IN:
+            # positive value
+            _match(cmd, FadeTime.IN)
+
+        elif token == FadeTime.OUT:
+            # negative value
+            val *= -1
+            _match(cmd, FadeTime.OUT)
+
     except ValueError:
         pass
+
+    state.fadetime = val
     return (cmd, state)
 
 
