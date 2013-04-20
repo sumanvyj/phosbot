@@ -56,11 +56,7 @@ class Walter(object):
             command['bri'] = int(MAX_BRIGHTNESS * (state.setlight / 100.0))
 
         if state.fadetime is not None:
-            if state.fadetime < 0:
-                command['on'] = False
-            else:
-                command['on'] = True
-
+            command['on'] = state.fadetime >= 0
             command['transitiontime'] = abs(state.fadetime)
 
         if state.color is not None:
