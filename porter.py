@@ -13,13 +13,22 @@ def main(queue=None):
 
     audio.play_sound("cutandrun.ogg");
 
-    #while audio.is_audio_playing():
     while True:
+      # TODO process stuff from the queue!
       audio.update()
-      #command =  {'bri' : 135, 'transitiontime' : 1, 'on' : True, 'hue' : audio.get_light(0)}
-      #bridge.set_light(1, command)
-      #command =  {'bri' : 135, 'transitiontime' : 1, 'on' : True, 'hue' : audio.get_light(1)}
-      #bridge.set_light(2, command)
+
+      # If we have audio playing currently, then loop through and ask
+      # the audio module for each light's info
+      if audio.is_audio_playing():
+        for i in range(num_lights):
+          light_info = audio.get_light(i)
+          if light_info.set:
+            command =  { 'on' : True,
+              'transitiontime' : light_info.trans,
+              'hue' : light_info.hue, 
+              'bri' : light_info.bri,
+              'sat' : light_info.sat}
+            bridge.set_light(i + 1, command)
       
     # Cleanup after audio stuffs
     audio.deinitialize()

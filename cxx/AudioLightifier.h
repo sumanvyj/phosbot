@@ -5,6 +5,14 @@
 #include "fft/kiss_fft.h"
 #include "fft/tools/kiss_fftr.h"
 
+struct Light {
+  uint16_t hue;
+  uint8_t bri;
+  uint8_t sat;
+  uint16_t trans;
+  bool set;
+};
+
 // turn PCM data into purty colors:
 //
 // The basic idea will be to use the frequency spectrum to modifiy the
@@ -20,10 +28,6 @@ class AudioLightifier {
 public:
 
   static unsigned WINDOW_SIZE;
-
-  struct Light {
-    uint32_t color;
-  };
 
   class fColor {
   public:

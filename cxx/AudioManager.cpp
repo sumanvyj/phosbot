@@ -52,30 +52,18 @@ void AudioManager::deinit() {
 
 void AudioManager::update() {
   m_audio->_update(0.f);
-
-  //m_lightifier.sample(m_nowPlaying->getByteOffset());
-  //printf("%d\n", (int));
+  m_lightifier.sample(m_nowPlaying->getByteOffset());
 
 #ifdef DEBUG_VIZ
 
 
-  //if (m_nowPlaying->getSecondOffset() > 45.f) {
-  //  printf("!!!!\n");
-  //}
-
-  //printf("%f %d\n", m_nowPlaying->getSecondOffset(), m_nowPlaying->getByteOffset());
-
-  if (isPlaying() && false) {
-    //static int sp = 0;
+  if (isPlaying()) {
     unsigned* p = reinterpret_cast<unsigned*>(m_surface->pixels);
+
     int l = (reinterpret_cast<short*>(m_data->pcm))
       [m_nowPlaying->getByteOffset()/2];
-    l /= 10;
-    l = std::max(-100, std::min(100, l));
-    //short r = (reinterpret_cast<short*>(m_data->pcm))
-      //[m_nowPlaying->getByteOffset() % AudioLightifier::WINDOW_SIZE + 2];
-    //line(prevx, prevy + 350, pos, l + 350, 0xffffffff, p, 800);
-    *(p + (l + 350) * 800 + pos) = 0xffff00ff;
+    l = std::max(-100, std::min(100, l / 10));
+    //*(p + (l + 350) * 800 + pos) = 0xffff00ff;
     prevx = pos;
     prevy = l;
     ++pos;
@@ -87,9 +75,9 @@ void AudioManager::update() {
       prevy = 0;
     }
 
-    for (int i = 0; i < m_numLights; ++i) {
-      square(50 + i * 150, 325, 100, 100, m_lightifier.getLight(i)->color, p, 800);
-    }
+    //for (int i = 0; i < m_numLights; ++i) {
+      //square(50 + i * 150, 325, 100, 100, m_lightifier.getLight(i)->color, p, 800);
+    //}
 
     memset(p, 0, 800*250*4);
     float* bins = m_lightifier.getBins();

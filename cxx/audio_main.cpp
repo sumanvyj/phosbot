@@ -13,6 +13,8 @@
 AudioManager* audio;
 struct timeval last_req;
 
+
+
 void initialize(int num_lights) {
   if (!audio) {
     audio = new AudioManager(num_lights);
@@ -54,9 +56,8 @@ bool is_audio_playing() {
   audio->isPlaying();
 }
 
-int get_light(int idx) {
-  int out = (audio->getLightifier()->getLight(idx)->color & 0xffff);
-  return out;
+Light get_light(int idx) {
+  return *audio->getLightifier()->getLight(idx);
 }
 
 BOOST_PYTHON_MODULE(audio) {
@@ -71,5 +72,11 @@ BOOST_PYTHON_MODULE(audio) {
     def("add_file", add_file);
     def("is_audio_playing", is_audio_playing);
     def("get_light", get_light);
+    class_<Light>("Light")
+      .def_readonly("bri", &Light::bri)
+      .def_readonly("hue", &Light::hue)
+      .def_readonly("sat", &Light::sat)
+      .def_readonly("trans", &Light::trans)
+      .def_readonly("set", &Light::set);
 }
 

@@ -10,12 +10,15 @@ AudioLightifier::AudioLightifier(int num_lights) {
   fft_out = new kiss_fft_cpx[WINDOW_SIZE / 2 + 1];
   for (int i = 0; i < num_lights; ++i) {
     m_lights.push_back(Light());
-    m_lights.back().color = 0x0;
+    m_lights.back().hue = 0;
+    m_lights.back().bri = 128;
+    m_lights.back().sat = 128;
+    m_lights.back().trans = 0;
+    m_lights.back().set = true;
   }
 }
 
 AudioLightifier::~AudioLightifier() {
-  // do stuff here...
   delete[] fft_out;
   delete[] fft_in;
   delete[] m_bins;
@@ -29,6 +32,8 @@ void AudioLightifier::sample(uint32_t offset) {
   // starting from some offset, run an FFT on WINDOW_SIZE
   // samples (at 1024 on 44.1kHz, this'll be ~20ms of audio)
 
+  // ofset by some amount to cope with lag
+  //  TODO make this tweakable at runtime!
   offset += (0.01f * 44100) * 2;
 
   short* pcm = reinterpret_cast<short*>(m_data->pcm);
@@ -72,37 +77,18 @@ float* AudioLightifier::getBins() {
 
 void AudioLightifier::computeLights() {
   // TODO come up with random numbers out of FFT bins to plug into color
-
   fColor c(0.f, 0.f,0.f);
-  //c.r = m_binStdDev / 2.f + 0.2f;
-  //c.g = log(m_binAvg) + 0.3f;
-  c.r = log(m_sampleIntensity) / 20.f;// + 0.2f;
-  c.g = log(m_sampleIntensity) / 20.f;// + 0.2f;
-  c.b = log(m_sampleIntensity) / 20.f;// + 0.2f;
-  //fColor tmp = c;
-  for (int i = 0; i < m_numLights; ++i)  {
-    m_lights[i].color = c.toRGB();
-  }
   float intensity = log(m_sampleIntensity) / 20.f + 0.5f;
-  //c.b = 0.f;
-  //printf("%f\n", m_binStdDev);
+  // totally arbitrary atm
   c.g = (m_binAvg - 5.f) / 45.f + 0.6f;
   c.b = (m_binStdDev - 0.6f) / 2.f + 0.85f;
   c.g *= intensity;
   c.b *= intensity;
-  m_lights[0].color = c.toRGB();
+  m_lights[0].hue = c.toRGB() & 0xffff;
   c.b = (m_binAvg - 5.f) / 30.f + 0.6f;
   c.g = (m_binStdDev - 0.6f) / 1.8f + 0.75f;
   c.g *= intensity;
   c.b *= intensity;
-  m_lights[1].color = c.toRGB();
-  /*c.r += prevColor.r;
-  fColor tmp = c;
-  c.g += prevColor.g;
-  c.b += prevColor.b;
-  c.r /= 2.f;
-  c.g /= 2.f;
-  c.b /= 2.f;*/
-  //prevColor = tmp;
+  m_lights[1].hue = c.toRGB() & 0xffff;
 }
 
