@@ -140,7 +140,8 @@ def parse_changelight(cmd, state):
     if _match(cmd, ChangeLight.DOWN) or _match(cmd, ChangeLight.DIMMER):
         val = -40
 
-    val *= 2 if (val != None and extra) else 1
+    if val != None:
+        val *= 2 if extra else 1
     state.changelight = val
     return (cmd, state)
 
