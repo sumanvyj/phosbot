@@ -1,6 +1,7 @@
 set(SOURCE_FILES
   audio_main.cpp
   AudioManager.cpp
+  AudioLightifier.cpp
   audio/ALdllmain.cpp
   audio/ALSubsystem.cpp
   audio/BufferedSound.cpp
@@ -11,6 +12,8 @@ set(SOURCE_FILES
   audio/WavLoader.cpp
   audio/WavStream.cpp
   audio/Vector3.cpp
+  fft/kiss_fft.c
+  fft/tools/kiss_fftr.c
 )
 if (APPLE)
   add_library(audio MODULE ${SOURCE_FILES})
@@ -19,7 +22,7 @@ else ()
 endif ()
 
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/lib)
-include_directories("/usr/local/include")
+include_directories("/usr/local/include" "fft" "fft/tools")
 set_target_properties(audio PROPERTIES PREFIX "")
 
 if (APPLE)

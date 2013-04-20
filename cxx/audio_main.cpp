@@ -60,5 +60,6 @@ BOOST_PYTHON_MODULE(audio) {
     def("unpause_sound", unpause_sound);
     def("play_sound", play_sound);
     def("add_file", add_file);
+    def("is_audio_playing", is_audio_playing);
 }
 
