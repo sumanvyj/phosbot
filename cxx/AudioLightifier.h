@@ -4,6 +4,8 @@
 #include "audio/ALSubsystem.h"
 #include "fft/kiss_fft.h"
 #include "fft/tools/kiss_fftr.h"
+#include <unistd.h>
+#include <sys/time.h>
 
 struct Light {
   uint16_t hue;
@@ -52,7 +54,7 @@ public:
   // returns a pointer to frequency/decibel bins
   float* getBins();
 
-  Light* getLight(int idx) { return &m_lights[idx]; }
+  Light* getLight(int idx);
   
 private:
 

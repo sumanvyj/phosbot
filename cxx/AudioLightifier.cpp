@@ -1,6 +1,14 @@
 #include "AudioLightifier.h"
 
 unsigned AudioLightifier::WINDOW_SIZE = 2048;
+struct timeval last_upd;
+
+Real tDifference(struct timeval start,struct timeval end) {
+  long seconds  = end.tv_sec  - start.tv_sec;
+  long useconds = end.tv_usec - start.tv_usec;
+  long ms = (seconds*1000+useconds/1000.f)+0.5;
+  return (seconds*1000.f+useconds/1000.f)/1000.f;
+}
 
 AudioLightifier::AudioLightifier(int num_lights) {
   m_data = 0;
@@ -16,6 +24,7 @@ AudioLightifier::AudioLightifier(int num_lights) {
     m_lights.back().trans = 0;
     m_lights.back().set = true;
   }
+  gettimeofday(&last_upd, 0);
 }
 
 AudioLightifier::~AudioLightifier() {
@@ -72,10 +81,22 @@ void AudioLightifier::sample(uint32_t offset) {
   m_binStdDev = sqrt(m_binStdDev / (WINDOW_SIZE / 2) - (m_binAvg * m_binAvg));
 
   computeLights();
+
 }
 
 float* AudioLightifier::getBins() {
   return m_bins;
+}
+
+Light* AudioLightifier::getLight(int idx) {
+  struct timeval now;
+  gettimeofday(&now, 0);
+  while (tDifference(last_upd, now) < 1.f / 20.f) {
+    //...
+    gettimeofday(&now, 0);
+  }
+  last_upd = now;
+  return &m_lights[idx];
 }
 
 #define CLAMP(X, MIN, MAX) std::min(MAX, std::max(MIN, X))
