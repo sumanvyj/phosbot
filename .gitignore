@@ -8,6 +8,7 @@ phosbot
 
 # vim
 *.un~
+*.swp
 
 # cmake stuff
 CMakeCache.txt
