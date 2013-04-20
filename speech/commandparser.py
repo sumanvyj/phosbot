@@ -57,7 +57,7 @@ class StateChange(object):
         the song name to play.  {some song name}
         if None, no song to play
     StateChange.volume
-        volume to play at.  {Volume.LOUD, Volume.SOFT, Volume.HIGH, Volume.LOW}
+        volume to play at.  {a 0-100 percentage volume set}
         if None, play at normal volume
     '''
 
@@ -113,7 +113,7 @@ def parse_power(cmd, state):
 
 
 def parse_setlight(cmd, state):
-    val = 0
+    val = None
     extra = _hasextra(cmd)
 
     # no elifs because someone may say "Turn on lights to dim"
@@ -130,7 +130,7 @@ def parse_setlight(cmd, state):
     return (cmd, state)
 
 def parse_changelight(cmd, state):
-    val = 0
+    val = None
     extra = _hasextra(cmd)
 
     # no elifs because someone may say "Turn down lights to dimmer"
@@ -140,7 +140,7 @@ def parse_changelight(cmd, state):
     if _match(cmd, ChangeLight.DOWN) or _match(cmd, ChangeLight.DIMMER):
         val = -40
 
-    val *= 2 if extra else 1
+    val *= 2 if (val != None and extra) else 1
     state.changelight = val
     return (cmd, state)
 
