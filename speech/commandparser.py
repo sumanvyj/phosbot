@@ -57,9 +57,12 @@ class StateChange(object):
     StateChange.color
         the color to change to.  {some rgb (r,g,b) color}
         if None, no color change.
-    StateChange.song
+    StateChange.songcommand
+        the song command to use.  {play, pause, unpause, party}
+        if None, no song to play
+    StateChange.songname
         the song name to play.  {some song name}
-        if empty string "", play a random song
+        if empty string "", unpause or pick random song
         if None, no song to play
     StateChange.volume
         volume to play at.  {a 0-100 percentage volume set}
@@ -68,7 +71,7 @@ class StateChange(object):
 
     __slots__ = (
         'power', 'setlight', 'changelight', 'fadetime',
-        'names', 'color', 'song', 'volume'
+        'names', 'color', 'songcommand', 'songname', 'volume'
     )
 
     def __init__(self, **kwargs):
@@ -78,17 +81,18 @@ class StateChange(object):
         self.fadetime = kwargs.get('fadetime')
         self.names = kwargs.get('names')
         self.color = kwargs.get('color')
-        self.song = kwargs.get('song')
+        self.songcommand = kwargs.get('songcommand')
+        self.songname = kwargs.get('songname')
         self.volume = kwargs.get('volume')
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        return '%s(power=%r, setlight=%r, changelight=%r, fadetime=%r, names=%r, color=%r, song=%r, volume=%r)' % (
+        return '%s(power=%r, setlight=%r, changelight=%r, fadetime=%r, names=%r, color=%r, songcommand=%r, songname=%r, volume=%r)' % (
             self.__class__.__name__,
             self.power, self.setlight, self.changelight, self.fadetime,
-            self.names, self.color, self.song, self.volume
+            self.names, self.color, self.songcommand, self.songname, self.volume
         )
 
 
@@ -219,6 +223,16 @@ def parse_color(cmd, state):
 
 
 def parse_song(cmd, state):
+    if _match(cmd, Song.PAUSE):
+        state.songcommand = Song.PAUSE
+    if _match(cmd, Song.UNPAUSE):
+        state.songcommand = Song.UNPAUSE
+    if _match(cmd, Song.PLAY):
+        state.songcommand = Song.PLAY
+        state.songname = ' '.join(cmd)
+    if _match(cmd, Song.PARTY):
+        state.songcommand = Song.PARTY
+        
     return (cmd, state)
 
 
@@ -249,12 +263,17 @@ def process_command(cmd, names=list()):
     names = [n.lower() for n in names]
     _match(cmd, 'turn')
 
+    
+    cmd, state = parse_song(cmd, state)
+    # break early if a song command given
+    if state.songcommand != None:
+        return state
+
     cmd, state = parse_names(cmd, state, names)
     cmd, state = parse_power(cmd, state)
     cmd, state = parse_setlight(cmd, state)
     cmd, state = parse_changelight(cmd, state)
     cmd, state = parse_fadetime(cmd, state)
     cmd, state = parse_color(cmd, state)
-    cmd, state = parse_song(cmd, state)
     cmd, state = parse_eastereggs(cmd, state)
     return state
