@@ -6,6 +6,7 @@ The command you're interested in is process_command([cmd])
     return:  a StateChange object as defined below
 '''
 
+import webcolors
 
 ###################################
 # define some statechange objects #
@@ -110,6 +111,14 @@ def parse_names(cmd, state, names):
         state.names = names
     return (cmd, state)
 
+def parse_color(cmd, state):
+    for word in cmd:
+        try:
+            state.color = webcolors.name_to_hex(word, spec='css3')
+            cmd.remove(word)
+            break
+        except ValueError:
+            continue
 
 def parse_eastereggs(cmd, state):
     return (cmd, state)
@@ -134,5 +143,6 @@ def process_command(cmd, names=list()):
     cmd, state = parse_power(cmd, state)
     cmd, state = parse_brightness(cmd, state)
     cmd, state = parse_names(cmd, state, names)
+    cmd, state = parse_color(cmd, state)
     cmd, state = parse_eastereggs(cmd, state)
     return state
