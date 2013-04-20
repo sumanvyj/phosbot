@@ -114,7 +114,9 @@ void AudioManager::playSound(const char* filename) {
     // select a random song
     filename = m_audioFiles[rand() % m_audioFiles.size()].c_str();
   }
-  m_nowPlaying = m_audio->play2D(filename, false);
+  std::string fn(filename);
+  fn = std::string("songs/") + fn;
+  m_nowPlaying = m_audio->play2D(fn.c_str(), false);
   m_nowPlaying->setGain(0.f, 1.f, 1.f);
   Sound* sound = &(*m_nowPlaying);
   if (dynamic_cast<BufferedSound*>(sound)) {
