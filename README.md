@@ -40,12 +40,29 @@ That should be it.
 
 Download dependencies
 
-  sudo apt-get install libboost-python-dev libSDL-dev libopenal-dev libogg-dev libvorbis-dev cmake
+    sudo apt-get install libboost-python-dev libSDL-dev libopenal-dev libogg-dev libvorbis-dev cmake python-pip
+
+Install `virtualenv`:
+
+    sudo pip install virtualenv
+
+Make a virtualenv called `phosbot`:
+
+    virtualenv phosbot
+
+Activate the virtualenv:
+
+    source ./phosbot/bin/activate
+
+Install all the required packages:
+
+    pip install -r requirements.txt
+
 
 Generate makefiles 'n stuff
 
-  cmake .
+    cmake .
 
 And actually build
 
-  make
+    make
