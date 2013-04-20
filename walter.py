@@ -76,6 +76,10 @@ class Walter(object):
 
 
 def main():
+    if len(sys.argv) > 1:
+        phrase = sys.argv[1]
+        Walter.control_lights(phrase)
+
     twitter_stream = TwitterUserStream(auth=OAuth(**config.OAUTH))
     stream = twitter_stream.user(replies='all')
 
