@@ -1,5 +1,6 @@
 set(SOURCE_FILES
   audio_main.cpp
+  AudioManager.cpp
   audio/ALdllmain.cpp
   audio/ALSubsystem.cpp
   audio/BufferedSound.cpp
