@@ -53,7 +53,7 @@ void AudioManager::deinit() {
 void AudioManager::update() {
   m_audio->_update(0.f);
 
-  m_lightifier.sample(m_nowPlaying->getByteOffset());
+  //m_lightifier.sample(m_nowPlaying->getByteOffset());
   //printf("%d\n", (int));
 
 #ifdef DEBUG_VIZ
@@ -65,7 +65,7 @@ void AudioManager::update() {
 
   //printf("%f %d\n", m_nowPlaying->getSecondOffset(), m_nowPlaying->getByteOffset());
 
-  if (isPlaying()) {
+  if (isPlaying() && false) {
     //static int sp = 0;
     unsigned* p = reinterpret_cast<unsigned*>(m_surface->pixels);
     int l = (reinterpret_cast<short*>(m_data->pcm))
