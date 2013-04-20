@@ -26,10 +26,10 @@ SONGS_PATH = 'SONGS_PATH'
 TABLE = string.maketrans('-_', '  ')
 VALID_FILENAME_CHARS = "-_.() %s%s" % (string.ascii_letters, string.digits)
 
-def cleanFilename(filename):
-    filename = unicode("_".join(filename.lower().strip().split()))
-    cleanedFilename = unicodedata.normalize('NFKD', filename).encode('ASCII', 'ignore')
-    return ''.join(c for c in cleanedFilename if c in VALID_FILENAME_CHARS)
+def clean_filename(filename):
+    fn = unicode("_".join(filename.lower().strip().split()))
+    cleaned_filename = unicodedata.normalize('NFKD', fn).encode('ASCII', 'ignore')
+    return ''.join(c for c in cleaned_filename if c in VALID_FILENAME_CHARS)
 
 class Walter(object):
     _bridge = None
@@ -60,32 +60,31 @@ class Walter(object):
 
         command = {}
 
-        if state.songcommand is not None:
-            if queue is not None:
-                queue.put({
-                    'type' : state.songcommand,
-                    'file' : state.songname
-                })
-            # TODO fix this!
-            '''song = state.songname.lower()
+        if state.songcommand is not None and queue is not None:
+            song = state.songname.lower()
             songs = os.environ[SONGS_PATH] if SONGS_PATH in os.environ else './songs'
             files = os.listdir(songs)
 
             fuzzy_files = {}
             for f in files:
-                fn = f.split('.')[0:-1].join('.').lower().translate(TABLE)
+                fn = '.'.join(f.split('.')[0:-1]).lower().translate(TABLE)
                 fuzzy_files[fn] = f
 
             if song in fuzzy_files:
-                song = fuzzy_files[song]'''
+                song = fuzzy_files[song]
+
+                queue.put({
+                    'type' : state.songcommand,
+                    'file' : state.songname
+                })
             return
 
-        if state.url is not None:
+        if state.url is not None and queue is not None:
             # get title of YT video and sanitize
             # to be filename-worthy
             cmd = subprocess.Popen(['youtube-dl', '-e', state.url], stdout=subprocess.PIPE)
             out, err = cmd.communicate()
-            filename = cleanFilename(out) + '.ogg'
+            filename = clean_filename(out) + '.ogg'
 
             # get youtube video descriptor string
             cmd = subprocess.Popen(['youtube-dl', '--get-filename', state.url], stdout=subprocess.PIPE)
@@ -103,11 +102,10 @@ class Walter(object):
 
             os.chdir(old_dir)
 
-            if queue is not None:
-                queue.put({
-                    'type' : 'play',
-                    'file' : filename
-                })
+            queue.put({
+                'type' : 'play',
+                'file' : filename
+            })
             return
 
         if state.power is not None:
