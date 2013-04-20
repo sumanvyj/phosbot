@@ -232,6 +232,7 @@ def parse_url(cmd, state):
             state.url = token
             cmd.remove(token)
             return (cmd, state)
+    return(cmd, state)
 
 def parse_song(cmd, state):
     if _match(cmd, Song.PAUSE):
@@ -274,10 +275,10 @@ def process_command(cmd, names=list()):
     names = [n.lower() for n in names]
     _match(cmd, 'turn')
 
-    #cmd, state = parse_url(cmd, state)
+    cmd, state = parse_url(cmd, state)
     # break early if a url is given
-    #if state.url != None:
-    #    return state
+    if state.url != None:
+        return state
 
     cmd = [x.lower() for x in cmd]
     
