@@ -2,6 +2,7 @@
 '''
 The command you're interested in is process_command([cmd])
     param [cmd]:  the string command put into twitter
+    param optional [names]:  a list of light bulb names
     return:  a StateChange object as defined below
 '''
 
@@ -10,22 +11,27 @@ The command you're interested in is process_command([cmd])
 # define some statechange objects #
 ###################################
 
-def enum(**enums):
+def _enum(**enums):
     return type('Enum', (), enums)
 
-# brightness
-Bright = enum(ON='on', OFF='off', UP='up', DOWN='down')
+# absolute brightness
+Power = _enum(ON='on', OFF='off', BRIGHT='bright', DIM='dim')
+# relative brightness
+Bright = _enum(UP='up', DOWN='down', BRIGHTER='brighter', DIMMER='dimmer')
 # song volume
-Volume = enum(LOUD='loud', SOFT='soft', HIGH='high', LOW='low')
+Volume = _enum(LOUD='loud', SOFT='soft', HIGH='high', LOW='low')
 
 
-class StateChange:
+class StateChange(object):
     '''
-    StateChange.bright
-        the brightness change.  {Bright.ON, Bright.OFF, Bright.UP, Bright.DOWN}
+    StateChange.power
+        absolute brightness setting {a percentage brightness set}
         if None, no change of state.
-    StateChange.name
-        the name of the light to target.  {some light name}
+    StateChange.brightness
+        relative brightness change.  {a percentage brightness change}
+        if None, no change of state.
+    StateChange.names
+        the names of the lights to target.  {a list of light names}
         if None, change all lights.
     StateChange.color
         the color to change to.  {some #ffffff rgb hex color}
@@ -38,37 +44,88 @@ class StateChange:
         if None, play at normal volume
     '''
 
-
-    def __init__():
-        self.bright = None
-        self.name = None
+    def __init__(self):
+        self.power = None
+        self.brightness = None
+        self.names = None
         self.color = None
         self.song = None
         self.volume = None
 
-
-
-
+    def __str__(self):
+        args = (str(self.power), str(self.brightness), str(self.names), 
+                str(self.color), str(self.song), str(self.volume))
+        args = tuple(filter(lambda a : a != None, args))
+        return 'power %s, brightness %s, target %s, color %s, song %s, volume %s' % args
 
 
 #########################
 # parse those commands! #
 #########################
 
-def process_command(cmd):
+
+def _match(cmd, key):
+    if key in cmd:
+        cmd.remove(key)
+        return True
+    return False
+
+def parse_power(cmd, state):
+    val = 0
+    # no elifs because someone may say "Turn on lights to dim"
+    # more of a key-word search
+    if _match(cmd, Power.ON) or _match(cmd, Power.BRIGHT):
+        val = 100
+    if _match(cmd, Power.DIM):
+        val = 30
+    if _match(cmd, Power.OFF):
+        val = 0
+    state.power = val
+    return (cmd, state)
+
+def parse_brightness(cmd, state):
+    val = 0
+    # no elifs because someone may say "Turn down lights to dimmer"
+    # more of a key-word search
+    if _match(cmd, Bright.UP) or _match(cmd, Bright.BRIGHTER):
+        val = 40
+    if _match(cmd, Bright.DOWN) or _match(cmd, Bright.DIMMER):
+        val = -40
+    state.brightness = val
+    return (cmd, state)
+
+def parse_names(cmd, state, names):
+    if _match(cmd, 'lights') or _match(cmd, 'all'):
+        state.names = None
+    names = tuple(set(cmd) & set(names))
+    if len(names) != 0:
+        cmd = filter(lambda w : w in names, cmd)
+        state.names = names
+    return (cmd, state)
+
+
+def parse_eastereggs(cmd, state):
+    return (cmd, state)
+
+
+
+################################
+# the actual command processor #
+################################
+
+def process_command(cmd, names=list()):
+    '''
+    takes a string command and parses commands out of it
+    (optional) a list of lightbulb names
+    returns a StateChange object, or None if not a valid command
+    '''
     state = StateChange()
-    cmd = "Turn on lights"
-    state = parse_bright(cmd, state)
+    cmd = cmd.lower().split()
+    names = map(lambda n : n.lower(), names)
+    _match(cmd, 'turn')
+
+    cmd, state = parse_power(cmd, state)
+    cmd, state = parse_brightness(cmd, state)
+    cmd, state = parse_names(cmd, state, names)
+    cmd, state = parse_eastereggs(cmd, state)
     return state
-
-
-def parse_bright(cmd, state):
-    if('on' in cmd):
-        state.bright = Bright.ON
-    return state
-
-def parse_name(cmd, state):
-    if('light' in cmd):
-        state.name = None
-    return state
-
