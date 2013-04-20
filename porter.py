@@ -2,9 +2,8 @@ from cxx import audio
 from time import clock
 from phue import *
 import config
-from phue import Bridge
 
-#b = Bridge('ip_of_your_bridge')
+#b = Bridge(config.BRIDGE_IP)
 #b.connect()
 #b.get_api()
 
@@ -15,9 +14,12 @@ num_lights = 2
 # Set up an OpenAL context and stuff
 audio.initialize(num_lights)
 
+#audio.add_file("click.ogg");
+#audio.add_file("calm1.ogg");
+
 audio.play_sound("click.ogg");
 
-while clock() < 3:
+while audio.is_audio_playing():
   audio.update()
 
 # TODO implement the server part...

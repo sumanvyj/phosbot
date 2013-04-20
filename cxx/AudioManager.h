@@ -1,6 +1,10 @@
+#ifndef AUDIO_MANAGER
+#define AUDIO_MANAGER
+
 #include <boost/python.hpp>
 #include "audio/ALSubsystem.h"
 #include "SDL/SDL.h"
+#include "AudioLightifier.h"
 
 #ifndef __APPLE__
   #define DEBUG_VIZ
@@ -40,9 +44,13 @@ private:
 
   std::vector<std::string> m_audioFiles;
 
+  AudioLightifier m_lightifier;
+
 #ifdef DEBUG_VIZ
   SDL_Surface* m_surface;
   int pos;
   int prevx, prevy;
 #endif
 };
+
+#endif

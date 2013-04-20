@@ -5,7 +5,8 @@ static void line(int x0, int y0, int x1, int y1, unsigned value,
 
 AudioManager::AudioManager(int num_lights)
   :m_initialized(false),
-   m_numLights(num_lights) {
+   m_numLights(num_lights),
+   m_lightifier(num_lights) {
 #ifdef DEBUG_VIZ
   pos = 0;
   prevx = 0;
@@ -28,6 +29,7 @@ void AudioManager::init() {
     if (SDL_Init(SDL_INIT_VIDEO)<0)
       exit(1);
     m_surface = SDL_SetVideoMode(800,500,32,SDL_HWSURFACE|SDL_DOUBLEBUF);
+    memset(reinterpret_cast<unsigned*>(m_surface->pixels) + 800*250, 0x2f, 800*250*4);
 #endif
   }
 }
@@ -47,26 +49,43 @@ void AudioManager::deinit() {
 void AudioManager::update() {
   m_audio->_update(0.f);
 
+  m_lightifier.sample((m_nowPlaying->getByteOffset() 
+    / AudioLightifier::WINDOW_SIZE) * AudioLightifier::WINDOW_SIZE);
+
 #ifdef DEBUG_VIZ
-  int l = (reinterpret_cast<short*>(m_data->pcm))[m_nowPlaying->getByteOffset()];
-  l /= 10;
-  l = std::max(-200, std::min(200, l));
-  short r = (reinterpret_cast<short*>(m_data->pcm))
-    [m_nowPlaying->getByteOffset() + 2];
-  unsigned* p = reinterpret_cast<unsigned*>(m_surface->pixels);
-  line(prevx, prevy + 250, pos, l + 250, 0xffffffff, p, 800);
-  *(p + (l + 250) * 800 + pos) = 0xffff00ff;
-  prevx = pos;
-  prevy = l;
-  ++pos;
-  SDL_Flip(m_surface);
-  if (pos == 800) {
-    memset(p, 0, 800*500*4);
-    pos = 0;
-    prevx = 0;
-    prevy = 0;
+
+  if (isPlaying() && false) {
+    //static int sp = 0;
+    unsigned* p = reinterpret_cast<unsigned*>(m_surface->pixels);
+    int l = (reinterpret_cast<short*>(m_data->pcm))
+      [m_nowPlaying->getByteOffset()];
+    l /= 1000;
+    l = std::max(-100, std::min(100, l));
+    short r = (reinterpret_cast<short*>(m_data->pcm))
+      [m_nowPlaying->getByteOffset() % AudioLightifier::WINDOW_SIZE + 2];
+    line(prevx, prevy + 350, pos, l + 350, 0xffffffff, p, 800);
+    *(p + (l + 350) * 800 + pos) = 0xffff00ff;
+    prevx = pos;
+    prevy = l;
+    ++pos;
+    SDL_Flip(m_surface);
+    if (pos == 800) {
+      memset(p + 800*250, 0x2f, 800*250*4);
+      pos = 0;
+      prevx = 0;
+      prevy = 0;
+    }
+    memset(p, 0, 800*250*4);
+    float* bins = m_lightifier.getBins();
+
+    for (int i = 0; i < AudioLightifier::WINDOW_SIZE/2 && i < 800; ++i) {
+      line(i, 0, i, static_cast<int>(std::max(std::min(bins[i] * 10, 200.f), 0.f)),
+        0xff0000ff, p, 800);
+    }
+
+    SDL_Flip(m_surface);
+    //usleep(10000);
   }
-  usleep(10000);
 #endif
 }
 
@@ -85,6 +104,7 @@ void AudioManager::playSound(const char* filename) {
   if (dynamic_cast<BufferedSound*>(sound)) {
     BufferedSound* bs = dynamic_cast<BufferedSound*>(sound);
     m_data = bs->getSoundData();
+    m_lightifier.setData(m_data);
   }
 }
 
@@ -93,6 +113,7 @@ void AudioManager::pauseSound() {
     m_nowPlaying->pause();
   } else if (!m_nowPlaying.isNull()) {
     m_nowPlaying.setNull();
+    m_lightifier.setData(0);
   }
 }
 
