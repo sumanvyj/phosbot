@@ -60,7 +60,7 @@ class StateChange(object):
 
     def __str__(self):
         return '%s(power=%r, brightness=%r, target=%r, color=%r, song=%r, volume=%r)' % (
-            self.__class__.__name__
+            self.__class__.__name__,
             self.power, self.brightness, self.names,
             self.color, self.song, self.volume
         )
@@ -133,6 +133,7 @@ def parse_color(cmd, state):
             break
         except ValueError:
             continue
+    return (cmd, state)
 
 def parse_eastereggs(cmd, state):
     return (cmd, state)
