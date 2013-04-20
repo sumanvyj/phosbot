@@ -246,11 +246,11 @@ def process_command(cmd, names=list()):
     names = [n.lower() for n in names]
     _match(cmd, 'turn')
 
+    cmd, state = parse_names(cmd, state, names)
     cmd, state = parse_power(cmd, state)
     cmd, state = parse_setlight(cmd, state)
     cmd, state = parse_changelight(cmd, state)
     cmd, state = parse_fadetime(cmd, state)
-    cmd, state = parse_names(cmd, state, names)
     cmd, state = parse_color(cmd, state)
     cmd, state = parse_song(cmd, state)
     cmd, state = parse_eastereggs(cmd, state)
