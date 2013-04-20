@@ -15,11 +15,15 @@ import webcolors
 def _enum(**enums):
     return type('Enum', (), enums)
 
+# on/off power
 Power = _enum(ON='on', OFF='off')
 # absolute brightness
 SetLight = _enum(BRIGHT='bright', DIM='dim', HALF='half', FULL='full')
 # relative brightness
 ChangeLight = _enum(UP='up', DOWN='down', BRIGHTER='brighter', DIMMER='dimmer')
+# a fade time
+FadeTime = _enum(FADE='fade', IN='in', OUT='out', 
+                 FAST='fast', SLOW='slow', SNAP='snap')
 # song volume
 Volume = _enum(LOUD='loud', SOFT='soft', HIGH='high', LOW='low')
 
@@ -30,16 +34,19 @@ class StateChange(object):
         boolean on / off {true/false}, true being on
         if None, no change of state.
     StateChange.setlight
-        absolute brightness setting {a percentage brightness set}
+        absolute brightness setting {a 0-100 percentage brightness set}
         if None, no change of state.
     StateChange.changelight
-        relative brightness change.  {a percentage brightness change}
+        relative brightness change.  {a 0-100 percentage brightness change}
         if None, no change of state.
+    StateChange.fadetime
+        a fade time in seconds.  {a time in milliseconds}
+        if None, default fade time.  if 0, instant change
     StateChange.names
         the names of the lights to target.  {a list of light names}
         if None, change all lights.
     StateChange.color
-        the color to change to.  {some #ffffff rgb hex color}
+        the color to change to.  {some rgb (r,g,b) color}
         if None, no color change.
     StateChange.song
         the song name to play.  {some song name}
@@ -50,13 +57,15 @@ class StateChange(object):
     '''
 
     __slots__ = (
-        'power', 'setlight', 'changelight', 'names', 'color', 'song', 'volume'
+        'power', 'setlight', 'changelight', 'fadetime',
+        'names', 'color', 'song', 'volume'
     )
 
     def __init__(self, **kwargs):
         self.power = kwargs.get('power')
         self.setlight = kwargs.get('setlight')
         self.changelight = kwargs.get('changelight')
+        self.fadetime = kwargs.get('fadetime')
         self.names = kwargs.get('names')
         self.color = kwargs.get('color')
         self.song = kwargs.get('song')
@@ -66,9 +75,9 @@ class StateChange(object):
         return self.__str__()
 
     def __str__(self):
-        return '%s(power=%r, setlight=%r, changelight=%r, target=%r, color=%r, song=%r, volume=%r)' % (
+        return '%s(power=%r, setlight=%r, changelight=%r, fadetime=%r, target=%r, color=%r, song=%r, volume=%r)' % (
             self.__class__.__name__,
-            self.power, self.setlight, self.changelight,
+            self.power, self.setlight, self.changelight, self.fadetime,
             self.names, self.color, self.song, self.volume
         )
 
@@ -89,11 +98,11 @@ def _hasextra(cmd):
     return 'really' in cmd or 'very' in cmd
 
 def parse_power(cmd, state):
-    val = 0
+    val = None
     if _match(cmd, Power.ON):
-        val = 100
+        val = True
     if _match(cmd, Power.OFF):
-        val = 0
+        val = False
     state.power = val
     return (cmd, state)
 
@@ -130,6 +139,27 @@ def parse_changelight(cmd, state):
     state.changelight = val
     return (cmd, state)
 
+def parse_fadetime(cmd, state):
+    val = None
+    extra = _hasextra(cmd)
+
+    if _match(cmd, FadeTime.SNAP):
+        val = 0
+    if _match(cmd, FadeTime.FAST):
+        val = 500
+        val /= 2 if extra else 1
+    if _match(cmd, FadeTime.SLOW):
+        val = 5000
+        val *= 2 if extra else 1
+
+    try:
+        index = cmd.index(FadeTime.FADE)
+        token = cmd[index+1]
+    except ValueError:
+        pass
+    return (cmd, state)
+
+
 def parse_names(cmd, state, names):
     if _match(cmd, 'lights') or _match(cmd, 'all'):
         state.names = None
@@ -152,7 +182,8 @@ def parse_color(cmd, state):
             continue
     return (cmd, state)
 
-#def parse_song(cmd, state):
+def parse_song(cmd, state):
+    return (cmd, state)
 
 
 
@@ -179,7 +210,9 @@ def process_command(cmd, names=list()):
     cmd, state = parse_power(cmd, state)
     cmd, state = parse_setlight(cmd, state)
     cmd, state = parse_changelight(cmd, state)
+    cmd, state = parse_fadetime(cmd, state)
     cmd, state = parse_names(cmd, state, names)
     cmd, state = parse_color(cmd, state)
+    cmd, state = parse_song(cmd, state)
     cmd, state = parse_eastereggs(cmd, state)
     return state
