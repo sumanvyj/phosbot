@@ -25,6 +25,8 @@ ChangeLight = _enum(UP='up', DOWN='down', BRIGHTER='brighter', DIMMER='dimmer')
 FadeTime = _enum(FADE='fade', IN='in', OUT='out', 
                  FAST='fast', QUICKLY='quickly',
                  SLOW='slow', SLOWLY='slowly', SNAP='snap')
+# song commands
+Song = _enum(PLAY='play', PARTY='party', PAUSE='pause', UNPAUSE='unpause')
 # song volume
 Volume = _enum(LOUD='loud', SOFT='soft', HIGH='high', LOW='low')
 
@@ -55,6 +57,7 @@ class StateChange(object):
         if None, no color change.
     StateChange.song
         the song name to play.  {some song name}
+        if empty string "", play a random song
         if None, no song to play
     StateChange.volume
         volume to play at.  {a 0-100 percentage volume set}
