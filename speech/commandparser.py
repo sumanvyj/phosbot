@@ -44,19 +44,25 @@ class StateChange(object):
         if None, play at normal volume
     '''
 
-    def __init__(self):
-        self.power = None
-        self.brightness = None
-        self.names = None
-        self.color = None
-        self.song = None
-        self.volume = None
+    __slots__ = ('power', 'brightness', 'names', 'color', 'song', 'volume')
+
+    def __init__(self, **kwargs):
+        self.power = kwargs.get('power')
+        self.brightness = kwargs.get('brightness')
+        self.names = kwargs.get('names')
+        self.color = kwargs.get('color')
+        self.song = kwargs.get('song')
+        self.volume = kwargs.get('volume')
+
+    def __repr__(self):
+        return self.__str__()
 
     def __str__(self):
-        args = (str(self.power), str(self.brightness), str(self.names), 
-                str(self.color), str(self.song), str(self.volume))
-        args = tuple(filter(lambda a : a != None, args))
-        return 'power %s, brightness %s, target %s, color %s, song %s, volume %s' % args
+        return '%s(power=%r, brightness=%r, target=%r, color=%r, song=%r, volume=%r)' % (
+            self.__class__.__name__
+            self.power, self.brightness, self.names,
+            self.color, self.song, self.volume
+        )
 
 
 #########################
