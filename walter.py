@@ -162,7 +162,6 @@ def user_okay(user):
 def main(phrase=None, queue=None):
     if phrase is not None:
         Walter.control_lights(phrase, queue)
-        return
 
     twitter_stream = TwitterUserStream(auth=OAuth(**config.OAUTH), block=False)
     stream = twitter_stream.user(replies='all')
