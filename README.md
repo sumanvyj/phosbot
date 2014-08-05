@@ -4,7 +4,7 @@ This will be a snazzy server thingy that controls hue lights and stuff.
 
 Using Homebrew, first make sure all these packages are installed:
 
-    brew install boost libogg libvorbis sdl cmake ffmpeg
+    brew install boost --with-python libogg libvorbis sdl cmake ffmpeg
 
 Install `pip`:
 
