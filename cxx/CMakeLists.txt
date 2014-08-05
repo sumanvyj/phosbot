@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.0)
 set(SOURCE_FILES
   audio_main.cpp
   AudioManager.cpp
@@ -32,4 +33,4 @@ else ()
 endif ()
 
 link_directories("/usr/local/lib")
-TARGET_LINK_LIBRARIES(audio ${Boost_LIBRARIES} ${OPENAL_LIB} vorbis vorbisfile ogg SDL SDLmain ${PYTHON_LIB})
+TARGET_LINK_LIBRARIES(audio ${Boost_LIBRARIES} ${OPENAL_LIB} -L/usr/local/lib vorbis vorbisfile ogg SDL SDLmain ${PYTHON_LIB})
