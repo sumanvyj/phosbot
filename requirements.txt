@@ -1,7 +1,7 @@
 phue==0.7
-PyYAML==3.10
-nltk==2.0.4
+PyYAML==3.11
+nltk==3.0.0b1
 twitter==1.14.3
 webcolors==1.4
 wsgiref==0.1.2
-youtube-dl==2013.04.11
+youtube_dl>=2014.08.02.1
