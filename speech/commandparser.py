@@ -167,9 +167,9 @@ def parse_fadetime(cmd, state):
     if _match(cmd, FadeTime.SNAP):
         val = 0
 
-    ########### 
+    ###########
     # REMEMBER:  VALUES ARE 10ths OF SECONDS
-    ########### 
+    ###########
     try:
         index = cmd.index(FadeTime.FADE)
         # if no 'fade', will Error and drop to bottom
@@ -208,11 +208,15 @@ def parse_names(cmd, state, names):
     if _match(cmd, 'lights') or _match(cmd, 'all'):
         state.names = None
 
-    names = tuple(set(cmd) & set(names))
-
-    if len(names) != 0:
-        cmd = [w for w in cmd if w not in names]
-        state.names = names
+    state.names = []
+    groups = set([])
+    for name in names:
+        group = name.split()[0]
+        groups.add(group)
+        if name in cmd:
+            state.names.append(name)
+            cmd = cmd.replace(name, "")
+            groups.remove(group)
 
     return (cmd, state)
 
@@ -245,7 +249,7 @@ def parse_song(cmd, state):
         state.songname = ' '.join(cmd)
     if _match(cmd, Song.PARTY):
         state.songcommand = Song.PARTY
-        
+
     return (cmd, state)
 
 
@@ -282,7 +286,7 @@ def process_command(cmd, names=list()):
         return state
 
     cmd = [x.lower() for x in cmd]
-    
+
     cmd, state = parse_song(cmd, state)
     # break early if a song command given
     if state.songcommand != None:
