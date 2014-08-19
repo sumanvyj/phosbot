@@ -46,7 +46,7 @@ class Walter(object):
     def control_lights(cls, phrase, queue=None):
         bridge = cls.bridge()
         phrase = phrase.strip()
-        light_names = [light.name for light in bridge.lights]
+        light_names = [light.name for light in bridge.lights if not light.name.startswith("Wilson")]
         state = speech.commandparser.process_command(phrase, light_names)
         names = light_names
 

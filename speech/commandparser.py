@@ -215,7 +215,7 @@ def parse_names(cmd, state, names):
         groups.add(group)
         if name in cmd:
             state.names.append(name)
-            cmd = cmd.replace(name, "")
+            cmd = cmd.remove(name)
             groups.remove(group)
 
     return (cmd, state)
